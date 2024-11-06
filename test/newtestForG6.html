@@ -7,8 +7,8 @@
 
 	<body>
 
-		<button onclick="change();">change to connect mode</button>
-		<button onclick="disableDrag();">disable drag</button>
+		<button onclick="change();">add two nodes</button>
+		<button onclick="disableDrag();">disable drag and enable connect</button>
 
 		<hr>
 
@@ -28,7 +28,6 @@
 							style: {
 								x: 50,
 								y: 50,
-								labelText: 'node',
 							}
 						},
 						{
@@ -43,6 +42,18 @@
 						source: 'node-1',
 						target: 'node-2'
 					}],
+				},
+				node: {
+					type: 'html',
+					style: {
+						size: [100,50],
+						innerHTML:'<a href="https://google.com">Learn more...</a>'
+					},
+					html: '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">Custom HTML Node 1</div>'
+					
+				},
+				edge: {
+					type: "quadratic",
 				},
 				behaviors: [{
 					type: 'zoom-canvas',
