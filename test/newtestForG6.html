@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+	<head>
+		<title>webplot</title>
+	</head>
+
+	<body>
+
+		<button onclick="change();">change to connect mode</button>
+		<button onclick="disableDrag();">disable drag</button>
+
+		<hr>
+
+		<div id="ID-container"></div>
+
+		<script src="./../assert/js/g6.min.js"></script>
+		<script>
+			const {
+				Graph
+			} = G6;
+
+			const graph = new Graph({
+				container: 'ID-container',
+				data: {
+					nodes: [{
+							id: 'node-1',
+							style: {
+								x: 50,
+								y: 50,
+								labelText: 'node',
+							}
+						},
+						{
+							id: 'node-2',
+							style: {
+								x: 150,
+								y: 50
+							}
+						},
+					],
+					edges: [{
+						source: 'node-1',
+						target: 'node-2'
+					}],
+				},
+				behaviors: [{
+					type: 'zoom-canvas',
+					sensitivity: 2,
+				}, {
+					type: 'drag-canvas',
+				}, {
+					key: 'drag-element',
+					type: 'drag-element',
+				}, {
+					key: 'create-edge',
+					type: 'create-edge',
+					enable: false,
+				}],
+
+			});
+
+			graph.render();
+
+			function change() {
+				graph.addData({
+					nodes: [{
+						id: "node-3"
+					}, {
+						id: "node-4"
+					}],
+					edges: [{
+						source: "node-3",
+						target: "node-4"
+					}],
+				});
+				graph.render();
+			}
+
+			function disableDrag() {
+				graph.updateBehavior({
+					key: 'drag-element',
+					enable: false,
+				});
+				graph.updateBehavior({
+					key: 'create-edge',
+					enable: true,
+				});
+			}
+		</script>
+	</body>
+
+</html>
