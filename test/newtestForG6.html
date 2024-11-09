@@ -1,104 +1,108 @@
 <!doctype html>
 <html>
 
-	<head>
-		<title>webplot</title>
-	</head>
+<head>
+	<title>webplot</title>
+</head>
 
-	<body>
+<body>
 
-		<button onclick="change();">add two nodes</button>
-		<button onclick="disableDrag();">disable drag and enable connect</button>
+	<button onclick="change();">add two nodes</button>
+	<button onclick="disableDrag();">disable drag and enable connect</button>
 
-		<hr>
+	<hr>
 
-		<div id="ID-container"></div>
+	<div id="ID-container"></div>
 
-		<script src="./../assert/js/g6.min.js"></script>
-		<script>
-			const {
-				Graph
-			} = G6;
+	<script src="./../assert/js/g6.min.js"></script>
+	<script>
+		graph_data = {
+			nodes: [{
+				id: 'node-1',
+				style: {
+					x: 50,
+					y: 50,
+				}
+			},
+			{
+				id: 'node-2',
+				style: {
+					x: 150,
+					y: 50
+				}
+			},
+			],
+			edges: [{
+				source: 'node-1',
+				target: 'node-2'
+			}],
+		};
 
-			const graph = new Graph({
-				container: 'ID-container',
-				data: {
-					nodes: [{
-							id: 'node-1',
-							style: {
-								x: 50,
-								y: 50,
-							}
-						},
-						{
-							id: 'node-2',
-							style: {
-								x: 150,
-								y: 50
-							}
-						},
-					],
-					edges: [{
-						source: 'node-1',
-						target: 'node-2'
-					}],
+
+		const {
+			Graph
+		} = G6;
+
+		const graph = new Graph({
+			container: 'ID-container',
+			data: graph_data,
+			node: {
+				type: 'html',
+				style: {
+					size: [100, 50],
+					fill: "pink",
+					innerHTML: '<a href="https://google.com">Learn more...</a>'
 				},
-				node: {
-					type: 'html',
-					style: {
-						size: [100,50],
-						innerHTML:'<a href="https://google.com">Learn more...</a>'
-					},
-					html: '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">Custom HTML Node 1</div>'
-					
-				},
-				edge: {
-					type: "quadratic",
-				},
-				behaviors: [{
-					type: 'zoom-canvas',
-					sensitivity: 2,
+				html: '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">Custom HTML Node 1</div>'
+
+			},
+			edge: {
+				type: "quadratic",
+			},
+			behaviors: [{
+				type: 'zoom-canvas',
+				sensitivity: 2,
+			}, {
+				type: 'drag-canvas',
+			}, {
+				key: 'drag-element',
+				type: 'drag-element',
+			}, {
+				key: 'create-edge',
+				type: 'create-edge',
+				enable: false,
+			}],
+
+		});
+
+		graph.render();
+
+		function change() {
+			graph.addData({
+				nodes: [{
+					id: "node-3"
 				}, {
-					type: 'drag-canvas',
-				}, {
-					key: 'drag-element',
-					type: 'drag-element',
-				}, {
-					key: 'create-edge',
-					type: 'create-edge',
-					enable: false,
+					id: "node-4"
 				}],
-
+				edges: [{
+					source: "node-3",
+					target: "node-4"
+				}],
 			});
-
 			graph.render();
+		}
 
-			function change() {
-				graph.addData({
-					nodes: [{
-						id: "node-3"
-					}, {
-						id: "node-4"
-					}],
-					edges: [{
-						source: "node-3",
-						target: "node-4"
-					}],
-				});
-				graph.render();
-			}
-
-			function disableDrag() {
-				graph.updateBehavior({
-					key: 'drag-element',
-					enable: false,
-				});
-				graph.updateBehavior({
-					key: 'create-edge',
-					enable: true,
-				});
-			}
-		</script>
-	</body>
+		function disableDrag() {
+			graph.updateBehavior({
+				key: 'drag-element',
+				enable: false,
+			});
+			graph.updateBehavior({
+				key: 'create-edge',
+				enable: true,
+			});
+		}
+	</script>
+</body>
 
 </html>

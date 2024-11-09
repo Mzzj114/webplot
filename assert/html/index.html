@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>webplot</title>
+
+    <link rel="stylesheet" href="./../css/layui.css">
+
+    <script src="./../js/g6.min.js"></script>
+    <script src="./../js/layui.js"></script>
+</head>
+
+<body>
+    <div id="ID-navbar">
+        <ul class="layui-nav">
+            <li class="layui-nav-item layui-this"><a href="">选中</a></li>
+            <li class="layui-nav-item">
+              <a href="javascript:;">常规</a>
+            </li>
+            <li class="layui-nav-item"><a href="">导航</a></li>
+            <li class="layui-nav-item">
+              <a href="javascript:;">子级</a>
+              <dl class="layui-nav-child">
+                <dd><a href="">菜单1</a></dd>
+                <dd><a href="">菜单2</a></dd>
+                <dd><a href="">菜单3</a></dd>
+              </dl>
+            </li>
+            <li class="layui-nav-item">
+              <a href="javascript:;">选项</a>
+              <dl class="layui-nav-child">
+                <dd><a href="">选项1</a></dd>
+                <dd class="layui-this"><a href="">选项2</a></dd>
+                <dd><a href="">选项3</a></dd>
+              </dl>
+            </li>
+            <li class="layui-nav-item"><a href="">演示</a></li>
+          </ul>
+    </div>
+
+    <div id="ID-toolbar">
+        <div class="layui-btn-container">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
+                <i class="layui-icon layui-icon-left"></i>
+            </button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
+                <i class="layui-icon layui-icon-right"></i>
+            </button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
+                <i class="layui-icon layui-icon-edit"></i>
+            </button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
+                <i class="layui-icon layui-icon-delete"></i>
+            </button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
+                <i class="layui-icon layui-icon-share"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <div id="ID-graph-container"></div>
+
+    <script src="../js/index.js"></script>
+
+</body>
+
+</html>
