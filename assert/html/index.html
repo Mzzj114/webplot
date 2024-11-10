@@ -5,16 +5,27 @@
     <meta charset="UTF-8" />
     <title>webplot</title>
 
+    <!--css库-->
     <link rel="stylesheet" href="./../css/layui.css">
 
+    <!--JS库-->
     <script src="./../js/g6.min.js"></script>
     <script src="./../js/layui.js"></script>
 </head>
 
 <body>
+    <!--导航栏-->
     <div id="ID-navbar">
         <ul class="layui-nav">
-            <li class="layui-nav-item layui-this"><a href="">选中</a></li>
+            <li class="layui-nav-item layui-this">
+                <a href="javascript:;">文件</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="javascript:pywebview.api.open_file();">打开</a></dd>
+                    <dd><a href="javascript:pywebview.api.save_file();">保存</a></dd>
+                    <!--<dd><a href="javascript:;">另存为</a></dd>-->
+                    <dd><a href="javascript:;">关闭</a></dd>
+                </dl>
+            </li>
             <li class="layui-nav-item">
               <a href="javascript:;">常规</a>
             </li>
@@ -39,6 +50,7 @@
           </ul>
     </div>
 
+    <!--工具栏-->
     <div id="ID-toolbar">
         <div class="layui-btn-container">
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
@@ -60,8 +72,10 @@
 
     </div>
 
+    <!--画布-->
     <div id="ID-graph-container"></div>
 
+    <!--脚本-->
     <script src="../js/index.js"></script>
 
 </body>
