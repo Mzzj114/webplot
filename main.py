@@ -57,6 +57,9 @@ class JSApi():
             # indent是缩进，可能出于性能考虑不用缩进
             json.dump(content, f, indent=4)
 
+    def debug_print(self, info):
+        print(info)
+
 
 def main_window_logic(window):
     print("Nice!, window started")

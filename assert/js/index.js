@@ -51,13 +51,26 @@ const graph = new Graph({
     }, {
         key: 'drag-element',
         type: 'drag-element',
-        enable: true,
+        enable: (event) => event.shiftKey === false,
     }, {
         key: 'create-edge',
         type: 'create-edge',
-        enable: false,
+        enable: (event) => event.shiftKey === true,
     }],
-
+    plugins: [
+        {
+            type: 'tooltip',
+            trigger: "click",
+            getContent: (e, itemsss) => {
+              let result = `<h4>Custom Content</h4>`;
+              itemsss.forEach((item) => {
+                result += `<p>Type: ${item.id}</p>`;
+                alert(item.id);
+              });
+              return `正在编辑`;
+            },
+          },
+      ],
 });
 
 function set_file_content(content) {
