@@ -1,10 +1,8 @@
-
-
 const { Graph } = G6;
 
 
 // 默认数据
-default_graph_data = {
+const default_graph_data = {
     nodes: [{
         id: 'demo-node-1',
         style: {
@@ -76,7 +74,12 @@ const graph = new Graph({
                     shadeClose: true, // 点击遮罩区域，关闭弹层
                     maxmin: true, // 允许全屏最小化
                     anim: 0, // 0-6 的动画形式，-1 不开启
-                    content: '<div style="padding: 32px;">一个普通的页面层，传入了自定义的 HTML</div>'
+                    content: `
+                    <div style="padding: 32px;">一个普通的页面层，传入了自定义的 HTML</div>
+                    <textarea id="ID-editor"></textarea>
+                    <script src="./../js/simplemde.min.js"></script>
+                    <script>var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });</script>
+                    `
                   });  
               });
               return `正在编辑`;

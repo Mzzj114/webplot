@@ -10,7 +10,7 @@ import webview
 
 
 # 给pywebview的js调用python的api
-class JSApi():
+class JSApi:
     current_file_path = ""
 
     def open_file(self):

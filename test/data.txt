@@ -1,0 +1,26 @@
+{
+    "nodes": [
+        {
+            "id": "demo-node-1",
+            "style": {
+                "x": 250,
+                "y": 250,
+                "innerHTML": "<div style=\"border: 1px solid #ddd; padding: 32px; background-color: #red;\">node 1</div>"
+            }
+        },
+        {
+            "id": "demo-node-2",
+            "style": {
+                "x": 350,
+                "y": 250,
+                "innerHTML": "<div style=\"border: 1px solid #ddd; padding: 32px; background-color: #pink;\">node 2</div>"
+            }
+        }
+    ],
+    "edges": [
+        {
+            "source": "demo-node-1",
+            "target": "demo-node-2"
+        }
+    ]
+}
