@@ -1,4 +1,7 @@
+
+
 const { Graph } = G6;
+
 
 // 默认数据
 default_graph_data = {
@@ -65,7 +68,16 @@ const graph = new Graph({
               let result = `<h4>Custom Content</h4>`;
               itemsss.forEach((item) => {
                 result += `<p>Type: ${item.id}</p>`;
-                alert(item.id);
+                layer.open({
+                    type: 1, // page 层类型
+                    area: ['500px', '300px'],
+                    title: 'Hello layer',
+                    shade: 0.6, // 遮罩透明度
+                    shadeClose: true, // 点击遮罩区域，关闭弹层
+                    maxmin: true, // 允许全屏最小化
+                    anim: 0, // 0-6 的动画形式，-1 不开启
+                    content: '<div style="padding: 32px;">一个普通的页面层，传入了自定义的 HTML</div>'
+                  });  
               });
               return `正在编辑`;
             },
