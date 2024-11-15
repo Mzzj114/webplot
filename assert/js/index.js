@@ -63,36 +63,60 @@ const graph = new Graph({
             type: 'tooltip',
             trigger: "click",
             getContent: (e, itemsss) => {
-              let result = `<h4>Custom Content</h4>`;
-              itemsss.forEach((item) => {
-                result += `<p>Type: ${item.id}</p>`;
-                layer.open({
-                    type: 1, // page 层类型
-                    area: ['500px', '300px'],
-                    title: 'Hello layer',
-                    shade: 0.6, // 遮罩透明度
-                    shadeClose: true, // 点击遮罩区域，关闭弹层
-                    maxmin: true, // 允许全屏最小化
-                    anim: 0, // 0-6 的动画形式，-1 不开启
-                    content: `
-                    <div style="padding: 32px;">一个普通的页面层，传入了自定义的 HTML</div>
-                    <textarea id="ID-editor"></textarea>
-                    <script src="./../js/simplemde.min.js"></script>
-                    <script>var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });</script>
-                    `
-                  });  
-              });
-              return `正在编辑`;
+                let result = `<h4>Custom Content</h4>`;
+                itemsss.forEach((item) => {
+                    result += `<p>Type: ${item.id}</p>`;
+                    layer.open({
+                        type: 1, // page 层类型
+                        area: ['800px', '500px'],
+                        title: 'Hello layer',
+                        shade: 0.6, // 遮罩透明度
+                        shadeClose: true, // 点击遮罩区域，关闭弹层
+                        maxmin: true, // 允许全屏最小化
+                        anim: 0, // 0-6 的动画形式，-1 不开启
+                        content: edit_node_layer_content(item.id),
+                    });
+                });
+                return `<div>正在编辑</div>`;
             },
-          },
-      ],
+        },
+    ],
 });
 
 function set_file_content(content) {
     // graph the json content
+    console.log("set_file_content");
     graph.setData(content);
     graph.render();
 }
 
+function edit_node_layer_content(node_id) {
+    console.log("edit_node_layer", node_id);
+    node = graph.getNodeData(node_id);
+    var turndownService = new TurndownService();
+    console.log("node_innerhtml", node.style.innerHTML);
+    var markdown = turndownService.turndown(`${node.style.innerHTML}`);
+    console.log("markdown", markdown);
+    return `
+        <div style="padding: 32px;">一个普通的页面层，传入了自定义的 HTML</div>
+        <textarea id="ID-editor">${markdown}</textarea>
+        <button type="button" class="layui-btn" onclick="save_node_content('${node_id}',simplemde.value())">确定</button>
+        <script src="./../js/simplemde.min.js"></script>
+        <script>var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });</script>
+        `
+}
 
+function save_node_content(node_id, md) {
+    console.log("save_node_content", node_id);
+    html_content = marked.parse(md);
+
+    console.log("updating html_content");
+    graph.updateNodeData([{ id: node_id, style: { innerHTML: `${html_content}` } }]);
+
+    graph.render();
+    layer.closeLast();
+}
+
+
+console.log("rendering graph");
 graph.render();

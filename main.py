@@ -102,7 +102,8 @@ main_window = webview.create_window(
     url=f'http://localhost:{PORT}/assert/html/index.html',
     js_api=JSApi()
 )
-webview.start(main_window_logic, main_window)
+webview.start(main_window_logic, main_window, debug=True)
 
 # anything below this line will be executed after program is finished executing
 print("quiting")
+
