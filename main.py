@@ -57,8 +57,20 @@ class JSApi:
             # indent是缩进，可能出于性能考虑不用缩进
             json.dump(content, f, indent=4)
 
-    def debug_print(self, info):
-        print(info)
+
+def read_file(file_path):
+    # 打开文件并读取内容
+    content = ''
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            # print(content)
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+    except IOError:
+        print(f"Error: An error occurred while reading the file '{file_path}'.")
+
+    return content
 
 
 def main_window_logic(window):
@@ -76,32 +88,34 @@ def start_server():
         httpd.serve_forever()
 
 
-def read_file(file_path):
-    # 打开文件并读取内容
-    content = ''
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            content = file.read()
-            # print(content)
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-    except IOError:
-        print(f"Error: An error occurred while reading the file '{file_path}'.")
-
-    return content
-
-
 # 启动本地服务器线程
 server_thread = threading.Thread(target=start_server)
 server_thread.daemon = True
 server_thread.start()
 
-# 启动应用程序窗口
+# 创建应用程序窗口
 main_window = webview.create_window(
+    width=900,
+    height=635,
     title='webplot',
     url=f'http://localhost:{PORT}/assert/html/index.html',
     js_api=JSApi()
 )
+
+
+# 窗口事件
+def on_resized(width, height):
+    print(
+        'pywebview window is resized. new dimensions are {width} x {height}'.format(
+            width=width, height=height
+        )
+    )
+    main_window.evaluate_js(f'graph.setSize({width}, {height});')
+
+
+main_window.events.resized += on_resized
+
+# 启动应用程序窗口
 webview.start(main_window_logic, main_window, debug=True)
 
 # anything below this line will be executed after program is finished executing

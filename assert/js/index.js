@@ -8,7 +8,7 @@ const default_graph_data = {
         style: {
             x: 250,
             y: 250,
-            innerHTML: '<div style="border: 1px solid #ddd; padding: 32px; background-color: #f9f9f9;">node 1</div>',
+            innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px">node 1</div>',
         }
     },
     {
@@ -30,11 +30,12 @@ const default_graph_data = {
 let content = default_graph_data;
 const graph = new Graph({
     container: 'ID-graph-container',
+    //autoResize: true,
     data: content,
     node: {
         type: 'html',
         style: {
-            size: [100, 50],
+            // size: [100, 50],
         },
     },
     edge: {
@@ -90,9 +91,38 @@ function set_file_content(content) {
     graph.render();
 }
 
+function get_node_html_with_border(html){
+    return `
+    <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px">${html}</div>
+    `
+}
+
+function getContainerSize(htmlString) {
+    // 创建一个隐藏的容器来渲染用户输入的 HTML
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.visibility = 'hidden';
+    container.style.width = 'auto';
+    container.style.height = 'auto';
+    container.innerHTML = htmlString;
+
+    // 将容器添加到文档中
+    document.body.appendChild(container);
+
+    // 获取容器的宽度和高度
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
+
+    // 移除临时容器
+    document.body.removeChild(container);
+
+    // 返回宽度和高度
+    return [ width, height ];
+}
+
 function edit_node_layer_content(node_id) {
     console.log("edit_node_layer", node_id);
-    node = graph.getNodeData(node_id);
+    let node = graph.getNodeData(node_id);
     var turndownService = new TurndownService();
     console.log("node_innerhtml", node.style.innerHTML);
     var markdown = turndownService.turndown(`${node.style.innerHTML}`);
@@ -108,10 +138,20 @@ function edit_node_layer_content(node_id) {
 
 function save_node_content(node_id, md) {
     console.log("save_node_content", node_id);
-    html_content = marked.parse(md);
+    let html_content = get_node_html_with_border(marked.parse(md));
 
     console.log("updating html_content");
-    graph.updateNodeData([{ id: node_id, style: { innerHTML: `${html_content}` } }]);
+
+    let size = getContainerSize(html_content);
+    console.log("size", size);
+
+    graph.updateNodeData([{
+        id: node_id,
+        style: {
+            size: size,
+            innerHTML: `${html_content}`,
+        }
+    }]);
 
     graph.render();
     layer.closeLast();
