@@ -3,24 +3,46 @@
         {
             "id": "demo-node-1",
             "style": {
-                "x": 250,
-                "y": 250,
-                "innerHTML": "<div style=\"border: 1px solid #ddd; padding: 32px; background-color: #f9f9f9;\">node 1</div>"
-            }
+                "x": 253,
+                "y": 151,
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 1</p>\n</div>\n    ",
+                "zIndex": 2,
+                "z": 0,
+                "size": [
+                    85,
+                    58
+                ]
+            },
+            "data": {}
         },
         {
             "id": "demo-node-2",
             "style": {
-                "x": 350,
-                "y": 250,
-                "innerHTML": "<div style=\"border: 1px solid #ddd; padding: 32px; background-color: #f9f9f9;\">node 2</div>"
-            }
+                "x": 503,
+                "y": 80,
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 2</p>\n</div>\n    ",
+                "zIndex": 1,
+                "z": 0,
+                "size": [
+                    85,
+                    58
+                ]
+            },
+            "data": {}
         }
     ],
     "edges": [
         {
             "source": "demo-node-1",
-            "target": "demo-node-2"
+            "target": "demo-node-2",
+            "style": {
+                "zIndex": -1,
+                "sourceNode": "demo-node-1",
+                "targetNode": "demo-node-2"
+            },
+            "data": {},
+            "id": "demo-node-1-demo-node-2"
         }
-    ]
+    ],
+    "combos": []
 }

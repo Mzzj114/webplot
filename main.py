@@ -53,7 +53,7 @@ class JSApi:
             return
         print(f"保存文件路径是: {file_path}")
         with open(file_path, 'w') as f:
-            content = main_window.evaluate_js('(function() { return content; })()')
+            content = main_window.evaluate_js('graph.getData()')
             # indent是缩进，可能出于性能考虑不用缩进
             json.dump(content, f, indent=4)
 
@@ -113,7 +113,7 @@ def on_resized(width, height):
     main_window.evaluate_js(f'graph.setSize({width}, {height});')
 
 
-main_window.events.resized += on_resized
+# main_window.events.resized += on_resized
 
 # 启动应用程序窗口
 webview.start(main_window_logic, main_window, debug=True)

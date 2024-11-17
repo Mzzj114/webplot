@@ -27,11 +27,10 @@ const default_graph_data = {
 };
 
 // 初始化数据
-let content = default_graph_data;
 const graph = new Graph({
     container: 'ID-graph-container',
-    //autoResize: true,
-    data: content,
+    autoResize: true,
+    data: default_graph_data,
     node: {
         type: 'html',
         style: {
@@ -44,12 +43,12 @@ const graph = new Graph({
     behaviors: [{
         key: 'zoom-canvas',
         type: 'zoom-canvas',
-        sensitivity: 2,
-        enable: false,
+        sensitivity: 0.5,
+        enable: true,
     }, {
         key: 'drag-canvas',
         type: 'drag-canvas',
-        enable: false,
+        enable: (event) => event.ctrlKey === true,
     }, {
         key: 'drag-element',
         type: 'drag-element',
@@ -160,3 +159,6 @@ function save_node_content(node_id, md) {
 
 console.log("rendering graph");
 graph.render();
+
+// 画面
+
