@@ -1,4 +1,4 @@
-const { Graph } = G6;
+const {Graph} = G6;
 
 
 // 默认数据
@@ -6,19 +6,21 @@ const default_graph_data = {
     nodes: [{
         id: 'demo-node-1',
         style: {
-            x: 250,
-            y: 250,
-            innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px">node 1</div>',
+            x: 200,
+            y: 200,
+            size: [85, 58],
+            innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px"><p>node 1</p></div>',
         }
     },
-    {
-        id: 'demo-node-2',
-        style: {
-            x: 350,
-            y: 250,
-            innerHTML: '<div style="border: 1px solid #ddd; padding: 32px; background-color: #f9f9f9;">node 2</div>',
-        }
-    },
+        {
+            id: 'demo-node-2',
+            style: {
+                x: 400,
+                y: 200,
+                size: [85, 58],
+                innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px"><p>node 2</p></div>',
+            }
+        },
     ],
     edges: [{
         source: 'demo-node-1',
@@ -62,9 +64,9 @@ const graph = new Graph({
         {
             type: 'tooltip',
             trigger: "click",
-            getContent: (e, itemsss) => {
+            getContent: (e, items) => {
                 let result = `<h4>Custom Content</h4>`;
-                itemsss.forEach((item) => {
+                items.forEach((item) => {
                     result += `<p>Type: ${item.id}</p>`;
                     layer.open({
                         type: 1, // page 层类型
@@ -79,10 +81,45 @@ const graph = new Graph({
                 });
                 return `<div>正在编辑</div>`;
             },
+            enable: false,
         },
+        {
+            type: 'contextmenu',
+            trigger: 'contextmenu', // 'click' or 'contextmenu'
+            getItems: (e) => {
+                console.log("targetType", e.targetType);
+                console.log("id", e.target.id);
+
+                return [
+                    {name: '编辑', value: "edit"},
+                    {name: '删除', value: "delete"},
+                ]
+            },
+            onClick: (value, menu_item, e) => {
+                console.log("value", value);
+                console.log("e.id", e.id);
+                console.log("e.type", e.type); // 这个值有三种情况，node，edge和undefined，undefined表示点击空白画布区域
+                console.log("e", e);
+
+                switch (e.type) {
+                    case "node":
+                        node_dropdown_menu(value,e);
+                        break;
+                    case "undefined":
+                        canvas_dropdown_menu(value,e);
+                        break;
+                    default:
+                        console.log("unknown e.type");
+                        break;
+                }
+            },
+            enable: true,
+
+        }
     ],
 });
 
+// 主要函数 获取文件内容
 function set_file_content(content) {
     // graph the json content
     console.log("set_file_content");
@@ -90,13 +127,15 @@ function set_file_content(content) {
     graph.render();
 }
 
-function get_node_html_with_border(html){
+// 辅助函数 获得有样式的div
+function get_node_html_with_border(html) {
     return `
     <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px">${html}</div>
     `
 }
 
-function getContainerSize(htmlString) {
+// 辅助函数 根据内容获得容器大小
+function get_container_size(htmlString) {
     // 创建一个隐藏的容器来渲染用户输入的 HTML
     const container = document.createElement('div');
     container.style.position = 'absolute';
@@ -116,9 +155,10 @@ function getContainerSize(htmlString) {
     document.body.removeChild(container);
 
     // 返回宽度和高度
-    return [ width, height ];
+    return [width, height];
 }
 
+// 辅助函数 获得编辑器窗口内容
 function edit_node_layer_content(node_id) {
     console.log("edit_node_layer", node_id);
     let node = graph.getNodeData(node_id);
@@ -135,13 +175,15 @@ function edit_node_layer_content(node_id) {
         `
 }
 
+// 主要函数 保存编辑后的内容
 function save_node_content(node_id, md) {
+
     console.log("save_node_content", node_id);
     let html_content = get_node_html_with_border(marked.parse(md));
 
-    console.log("updating html_content");
+    console.log("updating html_content", html_content);
 
-    let size = getContainerSize(html_content);
+    let size = get_container_size(html_content);
     console.log("size", size);
 
     graph.updateNodeData([{
@@ -156,9 +198,32 @@ function save_node_content(node_id, md) {
     layer.closeLast();
 }
 
+// 下拉菜单
+function node_dropdown_menu(operation, e) {
+    console.log("node_dropdown_menu", operation);
+    if (operation === "edit") {
+        layer.open({
+            type: 1, // page 层类型
+            area: ['800px', '500px'],
+            title: 'Hello layer',
+            shade: 0.6, // 遮罩透明度
+            shadeClose: true, // 点击遮罩区域，关闭弹层
+            maxmin: true, // 允许全屏最小化
+            anim: 0, // 0-6 的动画形式，-1 不开启
+            content: edit_node_layer_content(e.id),
+        });
+    } else if (operation === "delete") {
+        graph.removeNodeData([e.id]);
+        graph.render();
+    }
+}
 
+function canvas_dropdown_menu(operation, e) {
+    console.log("canvas_dropdown_menu", operation);
+}
+
+// main
 console.log("rendering graph");
 graph.render();
 
-// 画面
 

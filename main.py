@@ -77,8 +77,9 @@ def main_window_logic(window):
     print("Nice!, window started")
 
 
-# 创建 HTTP 服务器线程
+# 构建给app的HTTP本地服务器
 PORT = 8000
+index_url = f'http://localhost:{PORT}/asset/html/index.html'
 
 
 def start_server():
@@ -98,7 +99,7 @@ main_window = webview.create_window(
     width=900,
     height=635,
     title='webplot',
-    url=f'http://localhost:{PORT}/assert/html/index.html',
+    url=index_url,
     js_api=JSApi()
 )
 
