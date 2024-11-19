@@ -103,7 +103,6 @@ main_window = webview.create_window(
     js_api=JSApi()
 )
 
-
 # 窗口事件
 def on_resized(width, height):
     print(

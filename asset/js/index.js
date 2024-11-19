@@ -62,38 +62,24 @@ const graph = new Graph({
     }],
     plugins: [
         {
-            type: 'tooltip',
-            trigger: "click",
-            getContent: (e, items) => {
-                let result = `<h4>Custom Content</h4>`;
-                items.forEach((item) => {
-                    result += `<p>Type: ${item.id}</p>`;
-                    layer.open({
-                        type: 1, // page 层类型
-                        area: ['800px', '500px'],
-                        title: 'Hello layer',
-                        shade: 0.6, // 遮罩透明度
-                        shadeClose: true, // 点击遮罩区域，关闭弹层
-                        maxmin: true, // 允许全屏最小化
-                        anim: 0, // 0-6 的动画形式，-1 不开启
-                        content: edit_node_layer_content(item.id),
-                    });
-                });
-                return `<div>正在编辑</div>`;
-            },
-            enable: false,
-        },
-        {
             type: 'contextmenu',
             trigger: 'contextmenu', // 'click' or 'contextmenu'
             getItems: (e) => {
                 console.log("targetType", e.targetType);
                 console.log("id", e.target.id);
-
-                return [
-                    {name: '编辑', value: "edit"},
-                    {name: '删除', value: "delete"},
-                ]
+                if (e.targetType === "node") {
+                    return [
+                        {name: '编辑', value: "edit"},
+                        {name: '删除', value: "delete"},
+                    ]
+                }
+                else if (e.targetType === "canvas") {
+                    return [
+                        {name: '添加节点', value: "add_node"},
+                        {name: '自动布局', value: "auto_layout"},
+                    ]
+                }
+                return [];
             },
             onClick: (value, menu_item, e) => {
                 console.log("value", value);
@@ -105,7 +91,7 @@ const graph = new Graph({
                     case "node":
                         node_dropdown_menu(value,e);
                         break;
-                    case "undefined":
+                    case undefined:
                         canvas_dropdown_menu(value,e);
                         break;
                     default:
@@ -158,22 +144,45 @@ function get_container_size(htmlString) {
     return [width, height];
 }
 
-// 辅助函数 获得编辑器窗口内容
-function edit_node_layer_content(node_id) {
+// 主要函数 打开编辑节点对话框
+function open_edit_node_layer(node_id) {
     console.log("edit_node_layer", node_id);
+
+    // 编辑已有节点的情况
     let node = graph.getNodeData(node_id);
+    
     var turndownService = new TurndownService();
     console.log("node_innerhtml", node.style.innerHTML);
-    var markdown = turndownService.turndown(`${node.style.innerHTML}`);
+    
+    let markdown = turndownService.turndown(`${node.style.innerHTML}`);
     console.log("markdown", markdown);
-    return `
-        <div style="padding: 32px;">一个普通的页面层，传入了自定义的 HTML</div>
+    
+    edit_node_layer_content = `
+        <div class="layui-input-group">
+            <div class="layui-input-prefix">节点id</div>
+            <input id="ID-id-edit" type="text" class="layui-input" value="${node_id}" disabled>
+        </div>      
+
         <textarea id="ID-editor">${markdown}</textarea>
-        <button type="button" class="layui-btn" onclick="save_node_content('${node_id}',simplemde.value())">确定</button>
+        <button type="button" class="layui-btn" onclick="save_node_content('${node_id}', simplemde.value())">确定</button>
         <script src="./../js/simplemde.min.js"></script>
-        <script>var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });</script>
+        <script>
+            var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });
+        </script>
         `
+
+    layer.open({
+        type: 1, // page 层类型
+        area: ['800px', '500px'],
+        title: '编辑节点',
+        shade: 0.6, // 遮罩透明度
+        shadeClose: true, // 点击遮罩区域，关闭弹层
+        maxmin: true, // 允许全屏最小化
+        anim: 0, // 0-6 的动画形式，-1 不开启
+        content: edit_node_layer_content,
+    });
 }
+
 
 // 主要函数 保存编辑后的内容
 function save_node_content(node_id, md) {
@@ -202,16 +211,7 @@ function save_node_content(node_id, md) {
 function node_dropdown_menu(operation, e) {
     console.log("node_dropdown_menu", operation);
     if (operation === "edit") {
-        layer.open({
-            type: 1, // page 层类型
-            area: ['800px', '500px'],
-            title: 'Hello layer',
-            shade: 0.6, // 遮罩透明度
-            shadeClose: true, // 点击遮罩区域，关闭弹层
-            maxmin: true, // 允许全屏最小化
-            anim: 0, // 0-6 的动画形式，-1 不开启
-            content: edit_node_layer_content(e.id),
-        });
+        open_edit_node_layer(e.id);
     } else if (operation === "delete") {
         graph.removeNodeData([e.id]);
         graph.render();
@@ -220,6 +220,18 @@ function node_dropdown_menu(operation, e) {
 
 function canvas_dropdown_menu(operation, e) {
     console.log("canvas_dropdown_menu", operation);
+    console.log(e);
+    if (operation === "add_node") {
+        layer.prompt({title: 'Enter new node id',}, function (text, index) {
+            layer.close(index);
+            graph.addNodeData([{ id: text, style: { x: e.y, y: e.y } }]);
+            open_edit_node_layer(text);
+        });
+        
+    }
+    else if (operation === "auto_layout") {
+
+    }
 }
 
 // main
