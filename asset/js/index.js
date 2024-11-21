@@ -42,7 +42,45 @@ const graph = new Graph({
     edge: {
         type: "quadratic",
     },
+    combo: {
+      style: {
+        labelText: (d) => d.id,
+        labelPadding: [1, 10],
+        labelFill: '#fff',
+        labelBackground: true,
+        labelBackgroundRadius: 4,
+        labelBackgroundFill: '#7e3feb',
+      },
+    },
+    layout: {
+
+    },
     behaviors: [{
+        key: 'brush-select',
+        type: 'brush-select',
+        trigger: ['shift'],
+        enableElements: ['node','combo'],
+        onSelect: (event) => {
+            console.log("brush-selected, ready to create combo",event);
+
+            if (isEmptyRecord(event)){
+                return;
+            }
+
+            layer.prompt({title: '请输入组合id'},function(text, index){
+                layer.close(index);
+                let combo_id = text;
+                graph.addComboData([{id: combo_id, type: 'rect',}]);
+                console.log("combo_id", combo_id);
+                for (const node_id in event) {
+                    console.log('This node should be selected', node_id);
+                    graph.updateNodeData([{ id: node_id, combo: combo_id }]);
+                }
+                graph.render();
+            });
+        },
+        enable: (event) => event.shiftKey === true,
+    }, {
         key: 'zoom-canvas',
         type: 'zoom-canvas',
         sensitivity: 0.5,
@@ -105,6 +143,31 @@ const graph = new Graph({
     ],
 });
 
+function isEmptyRecord(record) {
+  // 首先检查对象是否有任何属性
+  for (const key in record) {
+    // 如果对象有自己的属性（不是从原型链上继承的）
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      // 获取该属性的值
+      const value = record[key];
+
+      // 检查值是否是非空字符串或非空数组
+      if (typeof value === 'string' && value.trim() !== '') {
+        // 如果是非空字符串，则对象不为空
+        return false;
+      } else if (Array.isArray(value) && value.length > 0) {
+        // 如果是非空数组，则对象不为空
+        return false;
+      }
+      // 如果值是空字符串、空数组或未定义（尽管类型定义中未包含undefined，但这里为了健壮性还是检查一下）
+      // 则继续检查下一个属性
+    }
+  }
+
+  // 如果遍历完所有属性都没有发现非空值，则对象为空
+  return true;
+}
+
 // 主要函数 获取文件内容
 function set_file_content(content) {
     // graph the json content
@@ -157,7 +220,7 @@ function open_edit_node_layer(node_id) {
     let markdown = turndownService.turndown(`${node.style.innerHTML}`);
     console.log("markdown", markdown);
     
-    edit_node_layer_content = `
+    let edit_node_layer_content = `
         <div class="layui-input-group">
             <div class="layui-input-prefix">节点id</div>
             <input id="ID-id-edit" type="text" class="layui-input" value="${node_id}" disabled>
@@ -207,6 +270,17 @@ function save_node_content(node_id, md) {
     layer.closeLast();
 }
 
+// 这个功能目前没什么用，因为现在的graph是纯为innerHtml设计的，别的图都用不了
+function import_data_from_web() {
+    layer.prompt({title: '请输入数据链接',}, function (text, index) {
+        layer.close(index);
+        fetch(text).then((res) => res.json()).then((data) => {
+            graph.setData(data);
+            graph.render();
+        });
+    });
+}
+
 // 下拉菜单
 function node_dropdown_menu(operation, e) {
     console.log("node_dropdown_menu", operation);
@@ -222,15 +296,15 @@ function canvas_dropdown_menu(operation, e) {
     console.log("canvas_dropdown_menu", operation);
     console.log(e);
     if (operation === "add_node") {
-        layer.prompt({title: 'Enter new node id',}, function (text, index) {
+        layer.prompt({title: '请输入新节点id',}, function (text, index) {
             layer.close(index);
             graph.addNodeData([{ id: text, style: { x: e.y, y: e.y } }]);
             open_edit_node_layer(text);
         });
-        
     }
     else if (operation === "auto_layout") {
-
+        graph.setLayout({type: 'dagre',});
+        graph.render();
     }
 }
 

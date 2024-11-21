@@ -18,10 +18,11 @@
             <li class="layui-nav-item layui-this">
                 <a href="javascript:;">文件</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="javascript:pywebview.api.open_file();">打开</a></dd>
+                    <dd><a href="javascript:pywebview.api.open_file();">打开本地文件</a></dd>
+                    <dd><a href="javascript:import_data_from_web();">从网络位置导入</a></dd>
                     <dd><a href="javascript:pywebview.api.save_file();">保存</a></dd>
-                    <!--<dd><a href="javascript:;">另存为</a></dd>-->
-                    <dd><a href="javascript:;">关闭</a></dd>
+                    <dd><a href="javascript:pywebview.api.save_file_as();">另存为</a></dd>
+                    <dd><a href="javascript:pywebview.api.close_window();">关闭</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">

@@ -29,6 +29,7 @@ class JSApi:
             except Exception as e:
                 print(e)
                 main_window.evaluate_js(f"alert('Error occurred when opening file');")
+        main_window.evaluate_js(f"layer.msg('成功打开{file_path}');")
 
     def save_file(self):
         print("save file")
@@ -39,11 +40,13 @@ class JSApi:
             return
 
         # js匿名函数
-        content = main_window.evaluate_js('(function() { return content; })()')
+        content = main_window.evaluate_js('graph.getData()')
 
         with open(self.current_file_path, 'w') as f:
             # indent是缩进，可能出于性能考虑不用缩进
             json.dump(content, f, indent=4)
+
+        main_window.evaluate_js(f"layer.msg('文件保存成功');")
 
     def save_file_as(self):
 
@@ -56,6 +59,10 @@ class JSApi:
             content = main_window.evaluate_js('graph.getData()')
             # indent是缩进，可能出于性能考虑不用缩进
             json.dump(content, f, indent=4)
+        main_window.evaluate_js(f"layer.msg('文件另存成功');")
+
+    def close_window(self):
+        main_window.destroy()
 
 
 def read_file(file_path):

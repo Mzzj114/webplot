@@ -3,30 +3,75 @@
         {
             "id": "demo-node-1",
             "style": {
-                "x": 253,
-                "y": 151,
-                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 1</p>\n</div>\n    ",
-                "zIndex": 2,
-                "z": 0,
+                "x": 182,
+                "y": 267,
                 "size": [
                     85,
                     58
-                ]
+                ],
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 1</p>\n</div>\n    ",
+                "zIndex": 6,
+                "z": 0
             },
             "data": {}
         },
         {
             "id": "demo-node-2",
             "style": {
-                "x": 503,
-                "y": 80,
-                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 2</p>\n</div>\n    ",
-                "zIndex": 1,
-                "z": 0,
+                "x": 559,
+                "y": 104,
                 "size": [
                     85,
                     58
-                ]
+                ],
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 2</p>\n</div>\n    ",
+                "zIndex": 8,
+                "z": 0
+            },
+            "data": {}
+        },
+        {
+            "id": "demo-node-3",
+            "style": {
+                "x": 225,
+                "y": 60,
+                "zIndex": 3,
+                "size": [
+                    86,
+                    58
+                ],
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node-3</p>\n</div>\n    ",
+                "z": 0
+            },
+            "data": {}
+        },
+        {
+            "id": "demo-node-4",
+            "style": {
+                "x": 390,
+                "y": 48,
+                "zIndex": 4,
+                "size": [
+                    85,
+                    58
+                ],
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 4</p>\n</div>\n    ",
+                "z": 0
+            },
+            "data": {}
+        },
+        {
+            "id": "demo-node-5",
+            "style": {
+                "x": 410,
+                "y": 301,
+                "zIndex": 7,
+                "size": [
+                    86,
+                    58
+                ],
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node-5</p>\n</div>\n    ",
+                "z": 0
             },
             "data": {}
         }
@@ -42,6 +87,33 @@
             },
             "data": {},
             "id": "demo-node-1-demo-node-2"
+        },
+        {
+            "id": "demo-node-5-demo-node-4-g1",
+            "source": "demo-node-5",
+            "target": "demo-node-4",
+            "style": {
+                "zIndex": 6
+            },
+            "data": {}
+        },
+        {
+            "id": "demo-node-2-demo-node-3-g2",
+            "source": "demo-node-2",
+            "target": "demo-node-3",
+            "style": {
+                "zIndex": 7
+            },
+            "data": {}
+        },
+        {
+            "id": "demo-node-3-demo-node-4-g3",
+            "source": "demo-node-3",
+            "target": "demo-node-4",
+            "style": {
+                "zIndex": 3
+            },
+            "data": {}
         }
     ],
     "combos": []
