@@ -111,6 +111,17 @@ const graph = new Graph({
                         {name: '删除', value: "delete"},
                     ]
                 }
+                else if (e.targetType === "edge") {
+                    return [
+                        {name: '删除', value: "delete"},
+                    ]
+                }
+                else if (e.targetType === "combo") {
+                    return [
+                        //{name: '编辑', value: "edit"},
+                        {name: '删除', value: "delete"},
+                    ]
+                }
                 else if (e.targetType === "canvas") {
                     return [
                         {name: '添加节点', value: "add_node"},
@@ -128,6 +139,12 @@ const graph = new Graph({
                 switch (e.type) {
                     case "node":
                         node_dropdown_menu(value,e);
+                        break;
+                    case "edge":
+                        edge_dropdown_menu(value,e);
+                        break;
+                    case "combo":
+                        combo_dropdown_menu(value,e);
                         break;
                     case undefined:
                         canvas_dropdown_menu(value,e);
@@ -288,6 +305,22 @@ function node_dropdown_menu(operation, e) {
         open_edit_node_layer(e.id);
     } else if (operation === "delete") {
         graph.removeNodeData([e.id]);
+        graph.render();
+    }
+}
+
+function edge_dropdown_menu(operation, e) {
+    console.log("edge_dropdown_menu", operation);
+    if (operation === "delete") {
+        graph.removeEdgeData([e.id]);
+        graph.render();
+    }
+}
+
+function combo_dropdown_menu(operation, e) {
+    console.log("combo_dropdown_menu", operation);
+    if (operation === "delete") {
+        graph.removeComboData([e.id]);
         graph.render();
     }
 }

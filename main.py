@@ -123,7 +123,7 @@ def on_resized(width, height):
 # main_window.events.resized += on_resized
 
 # 启动应用程序窗口
-webview.start(main_window_logic, main_window, debug=True)
+webview.start(main_window_logic, main_window, debug=True, icon="./favicon.ico")
 
 # anything below this line will be executed after program is finished executing
 print("quiting")
