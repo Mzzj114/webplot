@@ -30,7 +30,8 @@ const graph_data = {
 
 // 撤销重做功能
 // 用于记录状态的栈
-const history_stack = [];
+const history_stack = []; //undo stack
+const redo_stack = [];
 
 function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -45,11 +46,24 @@ function save_graph_state_history() {
 // 撤销到上一个状态
 function undo() {
     if (history_stack.length > 0) {
+        redo_stack.push(deepClone(graph.getData()));
         graph.setData(history_stack.pop()); // 恢复到上一个状态
         graph.render();
         console.log("Undo performed.");
     } else {
+        layer.msg('没有更多历史记录了');
         console.log("No more states to undo.");
+    }
+}
+
+// 重做
+function redo() {
+    if (redo_stack.length > 0) {
+        history_stack.push(deepClone(graph.getData())); // 当前状态存回撤销栈
+        graph.setData(redo_stack.pop());
+        console.log("Redo performed.");
+    } else {
+        console.log("No more states to redo.");
     }
 }
 
@@ -68,41 +82,27 @@ const graph = new Graph({
         type: "quadratic",
     },
     combo: {
-      style: {
-        labelText: (d) => d.id,
-        labelPadding: [1, 10],
-        labelFill: '#fff',
-        labelBackground: true,
-        labelBackgroundRadius: 4,
-        labelBackgroundFill: '#7e3feb',
-      },
+        style: {
+            labelText: (d) => d.id,
+            labelPadding: [1, 10],
+            labelFill: '#fff',
+            labelBackground: true,
+            labelBackgroundRadius: 4,
+            labelBackgroundFill: '#7e3feb',
+        },
     },
-    layout: {
-
-    },
+    layout: {},
     behaviors: [{
         key: 'brush-select',
         type: 'brush-select',
         trigger: ['shift'],
-        enableElements: ['node','combo'],
+        enableElements: ['node', 'combo'],
         onSelect: (event) => {
-            console.log("brush-selected, ready to create combo",event);
-
-            if (isEmptyRecord(event)){
+            console.log("brush-selected, ready to create combo", event);
+            if (isEmptyRecord(event)) {
                 return;
             }
-
-            layer.prompt({title: '请输入组合id'},function(text, index){
-                layer.close(index);
-                let combo_id = text;
-                graph.addComboData([{id: combo_id, type: 'rect',}]);
-                console.log("combo_id", combo_id);
-                for (const node_id in event) {
-                    console.log('This node should be selected', node_id);
-                    graph.updateNodeData([{ id: node_id, combo: combo_id }]);
-                }
-                graph.render();
-            });
+            open_add_combo_layer(event);
         },
         enable: (event) => event.shiftKey === true,
     }, {
@@ -117,6 +117,9 @@ const graph = new Graph({
     }, {
         key: 'drag-element',
         type: 'drag-element',
+        onFinish: (ids) => {
+            save_graph_state_history();
+        },
         enable: (event) => event.shiftKey === false,
     }, {
         key: 'create-edge',
@@ -136,19 +139,16 @@ const graph = new Graph({
                         {name: '编辑', value: "edit"},
                         {name: '删除', value: "delete"},
                     ];
-                }
-                else if (e.targetType === "edge") {
+                } else if (e.targetType === "edge") {
                     return [
                         {name: '删除边', value: "delete"},
                     ]
-                }
-                else if (e.targetType === "combo") {
+                } else if (e.targetType === "combo") {
                     return [
                         //{name: '编辑', value: "edit"},
                         {name: '解除组合', value: "delete"},
                     ]
-                }
-                else if (e.targetType === "canvas") {
+                } else if (e.targetType === "canvas") {
                     return [
                         {name: '添加节点', value: "add_node"},
                         {name: '自动布局', value: "auto_layout"},
@@ -164,16 +164,16 @@ const graph = new Graph({
 
                 switch (e.type) {
                     case "node":
-                        node_dropdown_menu(value,e);
+                        node_dropdown_menu(value, e);
                         break;
                     case "edge":
-                        edge_dropdown_menu(value,e);
+                        edge_dropdown_menu(value, e);
                         break;
                     case "combo":
-                        combo_dropdown_menu(value,e);
+                        combo_dropdown_menu(value, e);
                         break;
                     case undefined:
-                        canvas_dropdown_menu(value,e);
+                        canvas_dropdown_menu(value, e);
                         break;
                     default:
                         console.log("unknown e.type");
@@ -187,35 +187,73 @@ const graph = new Graph({
 });
 
 // G6的事件没有位置信息，只能自己写了
-let context_menu_position = [0,0];
+let context_menu_position = [0, 0];
 let graph_div = document.getElementById("ID-graph-container");
-graph_div.addEventListener('contextmenu', function(event) {
+graph_div.addEventListener('contextmenu', function (event) {
     context_menu_position = [event.clientX, event.clientY];
 })
 
-function isEmptyRecord(record) {
-  // 首先检查对象是否有任何属性
-  for (const key in record) {
-    // 如果对象有自己的属性（不是从原型链上继承的）
-    if (Object.prototype.hasOwnProperty.call(record, key)) {
-      // 获取该属性的值
-      const value = record[key];
+/* 考虑快捷键设计好之后给鼠标对graph的操作加上历史记录
+let isDragging = false; // 标志是否正在拖动
+let startX = 0; // 起始位置
+let startY = 0;
 
-      // 检查值是否是非空字符串或非空数组
-      if (typeof value === 'string' && value.trim() !== '') {
-        // 如果是非空字符串，则对象不为空
-        return false;
-      } else if (Array.isArray(value) && value.length > 0) {
-        // 如果是非空数组，则对象不为空
-        return false;
-      }
-      // 如果值是空字符串、空数组或未定义（尽管类型定义中未包含undefined，但这里为了健壮性还是检查一下）
-      // 则继续检查下一个属性
+document.addEventListener('mousedown', (event) => {
+    if (event.button === 0) { // 检测是否为左键
+        isDragging = true;
+        startX = event.clientX; // 记录起始位置
+        startY = event.clientY;
+        console.log(`Drag started at (${startX}, ${startY})`);
     }
-  }
+});
 
-  // 如果遍历完所有属性都没有发现非空值，则对象为空
-  return true;
+document.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        console.log("Drag ended");
+    }
+});
+*/
+
+function isEmptyRecord(record) {
+    // 首先检查对象是否有任何属性
+    for (const key in record) {
+        // 如果对象有自己的属性（不是从原型链上继承的）
+        if (Object.prototype.hasOwnProperty.call(record, key)) {
+            // 获取该属性的值
+            const value = record[key];
+
+            // 检查值是否是非空字符串或非空数组
+            if (typeof value === 'string' && value.trim() !== '') {
+                // 如果是非空字符串，则对象不为空
+                return false;
+            } else if (Array.isArray(value) && value.length > 0) {
+                // 如果是非空数组，则对象不为空
+                return false;
+            }
+            // 如果值是空字符串、空数组或未定义（尽管类型定义中未包含undefined，但这里为了健壮性还是检查一下）
+            // 则继续检查下一个属性
+        }
+    }
+
+    // 如果遍历完所有属性都没有发现非空值，则对象为空
+    return true;
+}
+
+// 主要函数 创建combo
+function open_add_combo_layer(event) {
+    layer.prompt({title: '请输入组合id'}, function (text, index) {
+        layer.close(index);
+        save_graph_state_history();
+        let combo_id = text;
+        graph.addComboData([{id: combo_id, type: 'rect',}]);
+        console.log("combo_id", combo_id);
+        for (const node_id in event) {
+            console.log('This node should be selected', node_id);
+            graph.updateNodeData([{id: node_id, combo: combo_id}]);
+        }
+        graph.render();
+    });
 }
 
 // 主要函数 获取文件内容
@@ -263,13 +301,13 @@ function open_edit_node_layer(node_id) {
 
     // 编辑已有节点的情况
     let node = graph.getNodeData(node_id);
-    
+
     var turndownService = new TurndownService();
     console.log("node_innerhtml", node.style.innerHTML);
-    
+
     let markdown = turndownService.turndown(`${node.style.innerHTML}`);
     console.log("markdown", markdown);
-    
+
     let edit_node_layer_content = `
         <div class="layui-input-group">
             <div class="layui-input-prefix">节点id</div>
@@ -308,6 +346,8 @@ function save_node_content(node_id, md) {
     let size = get_container_size(html_content);
     console.log("size", size);
 
+    save_graph_state_history();
+
     graph.updateNodeData([{
         id: node_id,
         style: {
@@ -335,8 +375,10 @@ function import_data_from_web() {
 function node_dropdown_menu(operation, e) {
     console.log("node_dropdown_menu", operation);
     if (operation === "edit") {
+        // 严谨来说应该在编辑窗口的回调函数里调用save_graph_state_history();
         open_edit_node_layer(e.id);
     } else if (operation === "delete") {
+        save_graph_state_history();
         graph.removeNodeData([e.id]);
         graph.render();
     }
@@ -368,11 +410,10 @@ function canvas_dropdown_menu(operation, e) {
         layer.prompt({title: '请输入新节点id',}, function (text, index) {
             layer.close(index);
             save_graph_state_history();
-            graph.addNodeData([{ id: text, style: { x: context_menu_position[0], y: context_menu_position[1] } }]);
+            graph.addNodeData([{id: text, style: {x: context_menu_position[0], y: context_menu_position[1]}}]);
             open_edit_node_layer(text);
         });
-    }
-    else if (operation === "auto_layout") {
+    } else if (operation === "auto_layout") {
         save_graph_state_history();
         graph.setLayout({type: 'dagre',});
         graph.render();
