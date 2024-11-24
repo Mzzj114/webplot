@@ -1,12 +1,28 @@
 import http.server
 import socketserver
+import cryptography
 import threading
-import tkinter as tk
+
 from tkinter import filedialog
 import os
 import json
 
 import webview
+
+
+def read_file(file_path):
+    # 打开文件并读取内容
+    content = ''
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            # print(content)
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+    except IOError:
+        print(f"Error: An error occurred while reading the file '{file_path}'.")
+
+    return content
 
 
 # 给pywebview的js调用python的api
@@ -61,23 +77,8 @@ class JSApi:
             json.dump(content, f, indent=4)
         main_window.evaluate_js(f"layer.msg('文件另存成功');")
 
-    def close_window(self):
-        main_window.destroy()
 
-
-def read_file(file_path):
-    # 打开文件并读取内容
-    content = ''
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            content = file.read()
-            # print(content)
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-    except IOError:
-        print(f"Error: An error occurred while reading the file '{file_path}'.")
-
-    return content
+# JS api 类结束
 
 
 def main_window_logic(window):
@@ -107,8 +108,11 @@ main_window = webview.create_window(
     height=635,
     title='webplot',
     url=index_url,
-    js_api=JSApi()
+    js_api=JSApi(),
+    min_size=(600, 450),
+    # frameless=True,
 )
+
 
 # 窗口事件
 def on_resized(width, height):
@@ -117,9 +121,11 @@ def on_resized(width, height):
             width=width, height=height
         )
     )
-    main_window.evaluate_js(f'graph.setSize({width}, {height});')
+    # 调整html文档大小
+    main_window.evaluate_js(f"document.body.width = {width}; document.body.height = {height};")
 
 
+# 这个窗口大小和html大小是个很神奇的问题，之后去查查
 # main_window.events.resized += on_resized
 
 # 启动应用程序窗口
@@ -127,4 +133,3 @@ webview.start(main_window_logic, main_window, debug=True, icon="./favicon.ico")
 
 # anything below this line will be executed after program is finished executing
 print("quiting")
-

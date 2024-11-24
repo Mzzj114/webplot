@@ -1,8 +1,8 @@
 const {Graph} = G6;
 
 
-// 默认数据
-const default_graph_data = {
+// 数据默认值
+const graph_data = {
     nodes: [{
         id: 'demo-node-1',
         style: {
@@ -28,11 +28,36 @@ const default_graph_data = {
     }],
 };
 
+// 撤销重做功能
+// 用于记录状态的栈
+const history_stack = [];
+
+function deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+// 请每次操作时都执行这个来使更改加入历史记录
+function save_graph_state_history() {
+    history_stack.push(deepClone(graph.getData())); // 保存当前的深拷贝
+    console.log("history saved");
+}
+
+// 撤销到上一个状态
+function undo() {
+    if (history_stack.length > 0) {
+        graph.setData(history_stack.pop()); // 恢复到上一个状态
+        graph.render();
+        console.log("Undo performed.");
+    } else {
+        console.log("No more states to undo.");
+    }
+}
+
 // 初始化数据
 const graph = new Graph({
     container: 'ID-graph-container',
     autoResize: true,
-    data: default_graph_data,
+    data: graph_data,
     node: {
         type: 'html',
         style: {
@@ -105,21 +130,22 @@ const graph = new Graph({
             getItems: (e) => {
                 console.log("targetType", e.targetType);
                 console.log("id", e.target.id);
+
                 if (e.targetType === "node") {
                     return [
                         {name: '编辑', value: "edit"},
                         {name: '删除', value: "delete"},
-                    ]
+                    ];
                 }
                 else if (e.targetType === "edge") {
                     return [
-                        {name: '删除', value: "delete"},
+                        {name: '删除边', value: "delete"},
                     ]
                 }
                 else if (e.targetType === "combo") {
                     return [
                         //{name: '编辑', value: "edit"},
-                        {name: '删除', value: "delete"},
+                        {name: '解除组合', value: "delete"},
                     ]
                 }
                 else if (e.targetType === "canvas") {
@@ -159,6 +185,13 @@ const graph = new Graph({
         }
     ],
 });
+
+// G6的事件没有位置信息，只能自己写了
+let context_menu_position = [0,0];
+let graph_div = document.getElementById("ID-graph-container");
+graph_div.addEventListener('contextmenu', function(event) {
+    context_menu_position = [event.clientX, event.clientY];
+})
 
 function isEmptyRecord(record) {
   // 首先检查对象是否有任何属性
@@ -307,11 +340,13 @@ function node_dropdown_menu(operation, e) {
         graph.removeNodeData([e.id]);
         graph.render();
     }
+
 }
 
 function edge_dropdown_menu(operation, e) {
     console.log("edge_dropdown_menu", operation);
     if (operation === "delete") {
+        save_graph_state_history();
         graph.removeEdgeData([e.id]);
         graph.render();
     }
@@ -320,6 +355,7 @@ function edge_dropdown_menu(operation, e) {
 function combo_dropdown_menu(operation, e) {
     console.log("combo_dropdown_menu", operation);
     if (operation === "delete") {
+        save_graph_state_history();
         graph.removeComboData([e.id]);
         graph.render();
     }
@@ -331,11 +367,13 @@ function canvas_dropdown_menu(operation, e) {
     if (operation === "add_node") {
         layer.prompt({title: '请输入新节点id',}, function (text, index) {
             layer.close(index);
-            graph.addNodeData([{ id: text, style: { x: e.y, y: e.y } }]);
+            save_graph_state_history();
+            graph.addNodeData([{ id: text, style: { x: context_menu_position[0], y: context_menu_position[1] } }]);
             open_edit_node_layer(text);
         });
     }
     else if (operation === "auto_layout") {
+        save_graph_state_history();
         graph.setLayout({type: 'dagre',});
         graph.render();
     }
@@ -344,5 +382,3 @@ function canvas_dropdown_menu(operation, e) {
 // main
 console.log("rendering graph");
 graph.render();
-
-

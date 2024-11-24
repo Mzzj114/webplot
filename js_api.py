@@ -1,5 +1,6 @@
 
-from main import main_window
 
+
+# from main import main_window
 
 
