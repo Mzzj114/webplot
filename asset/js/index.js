@@ -40,7 +40,7 @@ function deepClone(obj) {
 // 请每次操作时都执行这个来使更改加入历史记录
 function save_graph_state_history() {
     history_stack.push(deepClone(graph.getData())); // 保存当前的深拷贝
-    console.log("history saved");
+    console.log("history saved", history_stack);
 }
 
 // 撤销到上一个状态
@@ -49,7 +49,10 @@ function undo() {
         redo_stack.push(deepClone(graph.getData()));
         graph.setData(history_stack.pop()); // 恢复到上一个状态
         graph.render();
+
         console.log("Undo performed.");
+        console.log("history stack:", history_stack);
+        console.log("redo stack:", redo_stack);
     } else {
         layer.msg('没有更多历史记录了');
         console.log("No more states to undo.");
@@ -61,8 +64,13 @@ function redo() {
     if (redo_stack.length > 0) {
         history_stack.push(deepClone(graph.getData())); // 当前状态存回撤销栈
         graph.setData(redo_stack.pop());
+        graph.render();
+
         console.log("Redo performed.");
+        console.log("history stack:", history_stack);
+        console.log("redo stack:", redo_stack);
     } else {
+        layer.msg('没有更多历史记录了');
         console.log("No more states to redo.");
     }
 }
@@ -118,7 +126,7 @@ const graph = new Graph({
         key: 'drag-element',
         type: 'drag-element',
         onFinish: (ids) => {
-            save_graph_state_history();
+            //save_graph_state_history();
         },
         enable: (event) => event.shiftKey === false,
     }, {
@@ -346,7 +354,7 @@ function save_node_content(node_id, md) {
     let size = get_container_size(html_content);
     console.log("size", size);
 
-    save_graph_state_history();
+   save_graph_state_history();
 
     graph.updateNodeData([{
         id: node_id,
@@ -409,12 +417,12 @@ function canvas_dropdown_menu(operation, e) {
     if (operation === "add_node") {
         layer.prompt({title: '请输入新节点id',}, function (text, index) {
             layer.close(index);
-            save_graph_state_history();
-            graph.addNodeData([{id: text, style: {x: context_menu_position[0], y: context_menu_position[1]}}]);
-            open_edit_node_layer(text);
+            graph.addNodeData([{id: text, style: {x: context_menu_position[0], y: context_menu_position[1]-100, innerHTML: ""}}]);
+            //save_graph_state_history();下方函数有一次了
+            save_node_content(text, "新的节点");
         });
     } else if (operation === "auto_layout") {
-        save_graph_state_history();
+        //save_graph_state_history();
         graph.setLayout({type: 'dagre',});
         graph.render();
     }
