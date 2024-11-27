@@ -1,10 +1,16 @@
 const {Graph} = G6;
 
+let doAutoGenerateNodeId = false;
+let n= 2
+function generate_node_id() {
+    n++;
+    return "n"+(n-1);
+}
 
 // 数据默认值
 const graph_data = {
     nodes: [{
-        id: 'demo-node-1',
+        id: 'n0',
         style: {
             x: 200,
             y: 200,
@@ -13,7 +19,7 @@ const graph_data = {
         }
     },
         {
-            id: 'demo-node-2',
+            id: 'n1',
             style: {
                 x: 400,
                 y: 200,
@@ -23,8 +29,8 @@ const graph_data = {
         },
     ],
     edges: [{
-        source: 'demo-node-1',
-        target: 'demo-node-2'
+        source: 'n0',
+        target: 'n1'
     }],
 };
 
@@ -54,7 +60,7 @@ function undo() {
         console.log("history stack:", history_stack);
         console.log("redo stack:", redo_stack);
     } else {
-        layer.msg('没有更多历史记录了');
+        layer.msg('No more history');
         console.log("No more states to undo.");
     }
 }
@@ -70,7 +76,7 @@ function redo() {
         console.log("history stack:", history_stack);
         console.log("redo stack:", redo_stack);
     } else {
-        layer.msg('没有更多历史记录了');
+        layer.msg('No more history');
         console.log("No more states to redo.");
     }
 }
@@ -250,7 +256,7 @@ function isEmptyRecord(record) {
 
 // 主要函数 创建combo
 function open_add_combo_layer(event) {
-    layer.prompt({title: '请输入组合id'}, function (text, index) {
+    layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
         layer.close(index);
         save_graph_state_history();
         let combo_id = text;
@@ -318,12 +324,12 @@ function open_edit_node_layer(node_id) {
 
     let edit_node_layer_content = `
         <div class="layui-input-group">
-            <div class="layui-input-prefix">节点id</div>
+            <div class="layui-input-prefix">Node id</div>
             <input id="ID-id-edit" type="text" class="layui-input" value="${node_id}" disabled>
         </div>      
 
         <textarea id="ID-editor">${markdown}</textarea>
-        <button type="button" class="layui-btn" onclick="save_node_content('${node_id}', simplemde.value())">确定</button>
+        <button type="button" class="layui-btn" onclick="save_node_content('${node_id}', simplemde.value())">Save</button>
         <script src="./../js/simplemde.min.js"></script>
         <script>
             var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });
@@ -370,7 +376,7 @@ function save_node_content(node_id, md) {
 
 // 这个功能目前没什么用，因为现在的graph是纯为innerHtml设计的，别的图都用不了
 function import_data_from_web() {
-    layer.prompt({title: '请输入数据链接',}, function (text, index) {
+    layer.prompt({title: 'Enter data url',}, function (text, index) {
         layer.close(index);
         fetch(text).then((res) => res.json()).then((data) => {
             graph.setData(data);
@@ -414,13 +420,19 @@ function combo_dropdown_menu(operation, e) {
 function canvas_dropdown_menu(operation, e) {
     console.log("canvas_dropdown_menu", operation);
     console.log(e);
-    if (operation === "add_node") {
-        layer.prompt({title: '请输入新节点id',}, function (text, index) {
+    if (operation === "add_node" && doAutoGenerateNodeId === false) {
+        layer.prompt({title: 'Enter node id',}, function (text, index) {
             layer.close(index);
             graph.addNodeData([{id: text, style: {x: context_menu_position[0], y: context_menu_position[1]-100, innerHTML: ""}}]);
             //save_graph_state_history();下方函数有一次了
-            save_node_content(text, "新的节点");
+            save_node_content(text, "");
         });
+    } else if (operation === "add_node" && doAutoGenerateNodeId === true) {
+        let node_id = generate_node_id();
+        save_graph_state_history();
+        graph.addNodeData([{id: node_id, style: {x: context_menu_position[0], y: context_menu_position[1]-100, innerHTML: ""}}]);
+        save_node_content(node_id, "");
+
     } else if (operation === "auto_layout") {
         //save_graph_state_history();
         graph.setLayout({type: 'dagre',});
