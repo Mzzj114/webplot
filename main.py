@@ -27,7 +27,19 @@ def read_file(file_path):
 
 # 给pywebview的js调用python的api
 class JSApi:
-    current_file_path = ""
+    def __init__(self):
+        self.current_file_path = ""
+        with open('config.json', 'r') as jsonfile:
+            self.config = json.load(jsonfile)
+            print(self.config)
+
+    def get_config(self):
+        return self.config
+
+    def set_config(self, config):
+        self.config = config
+        with open('config.json', 'w') as jsonfile:
+            json.dump(self.config, jsonfile)
 
     def open_file(self):
         # 选择文件
@@ -83,6 +95,7 @@ class JSApi:
 
 def main_window_logic(window):
     print("Nice!, window started")
+    main_window.evaluate_js('on_pywebview_ready();')
 
 
 # 构建给app的HTTP本地服务器

@@ -1,6 +1,6 @@
 const {Graph} = G6;
 
-let doAutoGenerateNodeId = false;
+
 let n= 2
 function generate_node_id() {
     n++;
@@ -420,14 +420,15 @@ function combo_dropdown_menu(operation, e) {
 function canvas_dropdown_menu(operation, e) {
     console.log("canvas_dropdown_menu", operation);
     console.log(e);
-    if (operation === "add_node" && doAutoGenerateNodeId === false) {
+
+    if (operation === "add_node" && config["General"]["doAutoGenerateNodeId"] === false) {
         layer.prompt({title: 'Enter node id',}, function (text, index) {
             layer.close(index);
             graph.addNodeData([{id: text, style: {x: context_menu_position[0], y: context_menu_position[1]-100, innerHTML: ""}}]);
             //save_graph_state_history();下方函数有一次了
             save_node_content(text, "");
         });
-    } else if (operation === "add_node" && doAutoGenerateNodeId === true) {
+    } else if (operation === "add_node") {
         let node_id = generate_node_id();
         save_graph_state_history();
         graph.addNodeData([{id: node_id, style: {x: context_menu_position[0], y: context_menu_position[1]-100, innerHTML: ""}}]);
@@ -443,3 +444,13 @@ function canvas_dropdown_menu(operation, e) {
 // main
 console.log("rendering graph");
 graph.render();
+
+let config = {}
+// 有点逆天，但是pywebview的接口要等一会才会加载出来
+// 被python调用
+function on_pywebview_ready(){
+    pywebview.api.get_config().then((conf)=>{
+        console.log("config", conf);
+        config = conf;
+    })
+}
