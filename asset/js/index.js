@@ -1,10 +1,11 @@
 const {Graph} = G6;
 
 
-let n= 2
+let n = 2
+
 function generate_node_id() {
     n++;
-    return "n"+(n-1);
+    return "n" + (n - 1);
 }
 
 // 数据默认值
@@ -15,7 +16,7 @@ const graph_data = {
             x: 200,
             y: 200,
             size: [85, 58],
-            innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px"><p>node 1</p></div>',
+            innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 1</p></div>',
         }
     },
         {
@@ -24,7 +25,7 @@ const graph_data = {
                 x: 400,
                 y: 200,
                 size: [85, 58],
-                innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px"><p>node 2</p></div>',
+                innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 2</p></div>',
             }
         },
     ],
@@ -94,10 +95,13 @@ const graph = new Graph({
     },
     edge: {
         type: "quadratic",
+        style: {
+            lineWidth: 1,
+        }
     },
     combo: {
         style: {
-            labelText: (d) => d.id,
+            //labelText: "combo", //这个地方覆盖了之后就改不了了
             labelPadding: [1, 10],
             labelFill: '#fff',
             labelBackground: true,
@@ -150,22 +154,23 @@ const graph = new Graph({
 
                 if (e.targetType === "node") {
                     return [
-                        {name: '编辑', value: "edit"},
-                        {name: '删除', value: "delete"},
+                        {name: 'Edit', value: "edit"},
+                        {name: 'Delete', value: "delete"},
                     ];
                 } else if (e.targetType === "edge") {
                     return [
-                        {name: '删除边', value: "delete"},
+                        {name: 'Edit label', value: "edit"},
+                        {name: 'Remove edge', value: "delete"},
                     ]
                 } else if (e.targetType === "combo") {
                     return [
-                        //{name: '编辑', value: "edit"},
-                        {name: '解除组合', value: "delete"},
+                        {name: 'Edit label', value: "edit"},
+                        {name: 'Remove combo', value: "delete"},
                     ]
                 } else if (e.targetType === "canvas") {
                     return [
-                        {name: '添加节点', value: "add_node"},
-                        {name: '自动布局', value: "auto_layout"},
+                        {name: 'Add node', value: "add_node"},
+                        {name: 'Auto layout', value: "auto_layout"},
                     ]
                 }
                 return [];
@@ -281,7 +286,7 @@ function set_file_content(content) {
 // 辅助函数 获得有样式的div
 function get_node_html_with_border(html) {
     return `
-    <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px">${html}</div>
+    <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px">${html}</div>
     `
 }
 
@@ -313,15 +318,33 @@ function get_container_size(htmlString) {
 function open_edit_node_layer(node_id) {
     console.log("edit_node_layer", node_id);
 
-    // 编辑已有节点的情况
     let node = graph.getNodeData(node_id);
+    let markdown = "";
 
-    var turndownService = new TurndownService();
-    console.log("node_innerhtml", node.style.innerHTML);
+    // 开始获得markdown
+    // 使用 DOMParser 将字符串解析成 DOM 结构
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(node.style.innerHTML, 'text/html');
 
-    let markdown = turndownService.turndown(`${node.style.innerHTML}`);
+    // 使用 querySelector 来获取 id 为 'md' 的 div 元素
+    const mdDiv = doc.querySelector('#md');
+
+    // 检查是否找到了该元素，并获取其内容
+    if (mdDiv) {
+        var content = mdDiv.innerHTML; // 或者使用 mdDiv.textContent 来获取纯文本内容
+        console.log("找到了id", content);
+        markdown = base64ToUtf8(content);
+    } else {
+        console.log('没有找到 id 为 "md" 的 div 元素');
+        var turndownService = new TurndownService();
+        console.log("node_innerhtml", node.style.innerHTML);
+
+        markdown = turndownService.turndown(`${node.style.innerHTML}`);
+    }
+    // 结束获得md
     console.log("markdown", markdown);
 
+    // 构造弹窗
     let edit_node_layer_content = `
         <div class="layui-input-group">
             <div class="layui-input-prefix">Node id</div>
@@ -339,7 +362,7 @@ function open_edit_node_layer(node_id) {
     layer.open({
         type: 1, // page 层类型
         area: ['800px', '500px'],
-        title: '编辑节点',
+        title: 'Edit node',
         shade: 0.6, // 遮罩透明度
         shadeClose: true, // 点击遮罩区域，关闭弹层
         maxmin: true, // 允许全屏最小化
@@ -348,19 +371,54 @@ function open_edit_node_layer(node_id) {
     });
 }
 
+// 对非 ASCII 字符编码
+function utf8ToBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
+
+// 解码 Base64 到非 ASCII 字符
+function base64ToUtf8(base64) {
+    return decodeURIComponent(escape(atob(base64)));
+}
+
+// 辅助函数 有关渲染的工序
+function render_md_content(md) {
+    // 创建一个自定义渲染器，继承自默认的渲染器
+    const customRenderer = new marked.Renderer();
+
+    //覆盖默认的 image 方法 此处函数的参数是一个img对象，需要用{}解包
+    customRenderer.image = function ({href, text}) {
+        console.log("img", href, text);
+        // 构造包含 CSS 类的 <img> 标签
+        // 如果需要，可以添加一个包裹 <img> 标签的 <div> 或其他元素，并添加样式
+        // 例如：return `<div class="image-container">${imgTag}</div>`;
+        return `<img src="${href}" alt="${text}" style="max-width: 100%; height: auto; margin: 5px;" />`;
+    };
+
+    // 覆盖默认的 link 方法
+    customRenderer.link = function (href, title, text) {
+        const base = marked.Renderer.prototype.link.call(this, href, title, text);
+        // 在 <a> 标签上添加 target="_blank" 和 rel="noopener noreferrer"
+        return base.replace(/^<a\s/, '<a target="_blank" rel="noopener noreferrer" ');
+    };
+
+    let html_content = get_node_html_with_border(marked.parse(md,{renderer: customRenderer}));
+    html_content += `<div id='md' style="display: none;">${utf8ToBase64(md)}</div>`;
+
+    console.log("updating html_content", html_content);
+    return html_content;
+}
 
 // 主要函数 保存编辑后的内容
 function save_node_content(node_id, md) {
-
     console.log("save_node_content", node_id);
-    let html_content = get_node_html_with_border(marked.parse(md));
 
-    console.log("updating html_content", html_content);
+    let html_content = render_md_content(md);
 
     let size = get_container_size(html_content);
     console.log("size", size);
 
-   save_graph_state_history();
+    save_graph_state_history();
 
     graph.updateNodeData([{
         id: node_id,
@@ -406,6 +464,15 @@ function edge_dropdown_menu(operation, e) {
         graph.removeEdgeData([e.id]);
         graph.render();
     }
+    else if (operation === "edit") {
+        layer.prompt({title: 'Enter label',}, function (text, index) {
+            layer.close(index);
+            save_graph_state_history();
+            graph.updateEdgeData([{id: e.id,style: {labelText: text}}]);
+
+            graph.render();
+        });
+    }
 }
 
 function combo_dropdown_menu(operation, e) {
@@ -414,6 +481,15 @@ function combo_dropdown_menu(operation, e) {
         save_graph_state_history();
         graph.removeComboData([e.id]);
         graph.render();
+    }
+    else if (operation === "edit") {
+        layer.prompt({title: 'Enter label',}, function (text, index) {
+            layer.close(index);
+            save_graph_state_history();
+            graph.updateComboData([{id: e.id,style: {labelText: text}}]);
+
+            graph.render();
+        });
     }
 }
 
@@ -424,14 +500,20 @@ function canvas_dropdown_menu(operation, e) {
     if (operation === "add_node" && config["General"]["doAutoGenerateNodeId"] === false) {
         layer.prompt({title: 'Enter node id',}, function (text, index) {
             layer.close(index);
-            graph.addNodeData([{id: text, style: {x: context_menu_position[0], y: context_menu_position[1]-100, innerHTML: ""}}]);
+            graph.addNodeData([{
+                id: text,
+                style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
+            }]);
             //save_graph_state_history();下方函数有一次了
             save_node_content(text, "");
         });
     } else if (operation === "add_node") {
         let node_id = generate_node_id();
         save_graph_state_history();
-        graph.addNodeData([{id: node_id, style: {x: context_menu_position[0], y: context_menu_position[1]-100, innerHTML: ""}}]);
+        graph.addNodeData([{
+            id: node_id,
+            style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
+        }]);
         save_node_content(node_id, "");
 
     } else if (operation === "auto_layout") {
@@ -448,8 +530,8 @@ graph.render();
 let config = {}
 // 有点逆天，但是pywebview的接口要等一会才会加载出来
 // 被python调用
-function on_pywebview_ready(){
-    pywebview.api.get_config().then((conf)=>{
+function on_pywebview_ready() {
+    pywebview.api.get_config().then((conf) => {
         console.log("config", conf);
         config = conf;
     })
