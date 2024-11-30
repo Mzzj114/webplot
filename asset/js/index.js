@@ -82,7 +82,7 @@ function redo() {
     }
 }
 
-// 初始化数据
+// 初始化图数据 和一些样式
 const graph = new Graph({
     container: 'ID-graph-container',
     autoResize: true,
@@ -97,6 +97,11 @@ const graph = new Graph({
         type: "quadratic",
         style: {
             lineWidth: 1,
+            labelPadding: [1, 10],
+            labelFill: '#fff',
+            labelBackground: true,
+            labelBackgroundRadius: 4,
+            labelBackgroundFill: '#16b777',
         }
     },
     combo: {
@@ -109,7 +114,9 @@ const graph = new Graph({
             labelBackgroundFill: '#7e3feb',
         },
     },
-    layout: {},
+    layout: {
+        // layout: 'force',
+    },
     behaviors: [{
         key: 'brush-select',
         type: 'brush-select',
@@ -261,11 +268,12 @@ function isEmptyRecord(record) {
 
 // 主要函数 创建combo
 function open_add_combo_layer(event) {
+    // 现在combo会把首次输入的标签作为id之后可以改
     layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
         layer.close(index);
         save_graph_state_history();
         let combo_id = text;
-        graph.addComboData([{id: combo_id, type: 'rect',}]);
+        graph.addComboData([{id: combo_id, type: 'rect', style:{labelText: combo_id}}]);
         console.log("combo_id", combo_id);
         for (const node_id in event) {
             console.log('This node should be selected', node_id);
@@ -318,30 +326,10 @@ function get_container_size(htmlString) {
 function open_edit_node_layer(node_id) {
     console.log("edit_node_layer", node_id);
 
-    let node = graph.getNodeData(node_id);
-    let markdown = "";
+    let node_data = graph.getNodeData(node_id);
+    let markdown = node_data.data.markdown;
+    if (markdown === undefined) markdown = "";
 
-    // 开始获得markdown
-    // 使用 DOMParser 将字符串解析成 DOM 结构
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(node.style.innerHTML, 'text/html');
-
-    // 使用 querySelector 来获取 id 为 'md' 的 div 元素
-    const mdDiv = doc.querySelector('#md');
-
-    // 检查是否找到了该元素，并获取其内容
-    if (mdDiv) {
-        var content = mdDiv.innerHTML; // 或者使用 mdDiv.textContent 来获取纯文本内容
-        console.log("找到了id", content);
-        markdown = base64ToUtf8(content);
-    } else {
-        console.log('没有找到 id 为 "md" 的 div 元素');
-        var turndownService = new TurndownService();
-        console.log("node_innerhtml", node.style.innerHTML);
-
-        markdown = turndownService.turndown(`${node.style.innerHTML}`);
-    }
-    // 结束获得md
     console.log("markdown", markdown);
 
     // 构造弹窗
@@ -370,7 +358,7 @@ function open_edit_node_layer(node_id) {
         content: edit_node_layer_content,
     });
 }
-
+/*
 // 对非 ASCII 字符编码
 function utf8ToBase64(str) {
     return btoa(unescape(encodeURIComponent(str)));
@@ -380,7 +368,7 @@ function utf8ToBase64(str) {
 function base64ToUtf8(base64) {
     return decodeURIComponent(escape(atob(base64)));
 }
-
+*/
 // 辅助函数 有关渲染的工序
 function render_md_content(md) {
     // 创建一个自定义渲染器，继承自默认的渲染器
@@ -403,7 +391,6 @@ function render_md_content(md) {
     };
 
     let html_content = get_node_html_with_border(marked.parse(md,{renderer: customRenderer}));
-    html_content += `<div id='md' style="display: none;">${utf8ToBase64(md)}</div>`;
 
     console.log("updating html_content", html_content);
     return html_content;
@@ -425,6 +412,9 @@ function save_node_content(node_id, md) {
         style: {
             size: size,
             innerHTML: `${html_content}`,
+        },
+        data: {
+            markdown: md,
         }
     }]);
 
@@ -518,7 +508,7 @@ function canvas_dropdown_menu(operation, e) {
 
     } else if (operation === "auto_layout") {
         //save_graph_state_history();
-        graph.setLayout({type: 'dagre',});
+        graph.setLayout({type: 'dendrogram',direction: "TB", nodeStep: 40});
         graph.render();
     }
 }

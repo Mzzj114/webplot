@@ -1,26 +1,54 @@
 {
     "nodes": [
         {
-            "id": "demo-node-1",
+            "id": "n0",
             "style": {
-                "x": 250,
-                "y": 250,
-                "innerHTML": "<div style=\"border: 1px solid #ddd; padding: 32px; background-color: #red;\">node 1</div>"
-            }
+                "x": 170,
+                "y": 201,
+                "size": [
+                    109,
+                    132
+                ],
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px\"><h1>Title</h1>\n<p>text</p>\n<p><del>text</del></p>\n<p><strong>text</strong></p>\n</div>\n    <div id='md' style=\"display: none;\">IyBUaXRsZQp0ZXh0Cgp+fnRleHR+fgoKKip0ZXh0Kio=</div>",
+                "zIndex": 1,
+                "z": 0
+            },
+            "data": {
+                "markdown": "# Title\ntext\n\n~~text~~\n\n**text**"
+            },
+            "states": []
         },
         {
-            "id": "demo-node-2",
+            "id": "n1",
             "style": {
-                "x": 350,
-                "y": 250,
-                "innerHTML": "<div style=\"border: 1px solid #ddd; padding: 32px; background-color: #pink;\">node 2</div>"
-            }
+                "x": 400,
+                "y": 200,
+                "size": [
+                    109,
+                    132
+                ],
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px\"><h1>Title</h1>\n<p>text</p>\n<p><del>text</del></p>\n<p><strong>text</strong></p>\n</div>\n    <div id='md' style=\"display: none;\">IyBUaXRsZQp0ZXh0Cgp+fnRleHR+fgoKKip0ZXh0Kio=</div>",
+                "zIndex": 0
+            },
+            "data": {
+                "markdown": "# Title\ntext\n\n~~text~~\n\n**text**"
+            },
+            "states": []
         }
     ],
     "edges": [
         {
-            "source": "demo-node-1",
-            "target": "demo-node-2"
+            "source": "n0",
+            "target": "n1",
+            "style": {
+                "zIndex": 0,
+                "sourceNode": "n0",
+                "targetNode": "n1"
+            },
+            "data": {},
+            "id": "n0-n1",
+            "states": []
         }
-    ]
+    ],
+    "combos": []
 }

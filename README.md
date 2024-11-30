@@ -1,29 +1,46 @@
-我要做一个网状图的编辑器
+# Network Graph Editor
 
-技术栈
+A tool for organizing ideas, featuring nodes that support rich text. This project aims to create an intuitive and visually appealing editor for network graphs.
 
-Python
+## Features
 
-应用程序：pywebview + html(React?)
+- **Rich Text Nodes**: Each node in the graph can contain rich text, allowing for detailed and flexible content.
+- **Customizable Design**: Nodes can be styled to look like sticky notes, with features like pushpins for added aesthetics.
+- **Interactive Editing**: Right-click menus for nodes and the canvas make editing seamless.
+- **Advanced Visuals**: Uses [AntV G6](https://g6.antv.antgroup.com/) for rendering high-quality topology graphs.
 
-数据结构：网型结构，要自己写，[参考](https://blog.csdn.net/weixin_27006759/article/details/141177754)
+## Tech Stack
 
-显示：蚂蚁G6，好强大的功能呀，现在前端都这样了吗。
+- **Backend**: Python
+- **Frontend**: JavaScript, HTML (using Layui)
+- **Application Framework**: pywebView
 
-todo list
+## Progress
 
-1. 显示拓补图 ok
-2. 文件读取和保存 ok
-3. 编辑节点内容 ok，测试图片
-4. 画布大小 ok
-5. 节点美术 ok 加入像便签纸，图钉之类的东西
-6. 右键菜单 节点的，画布的 ok
-7. combo相关功能，右键菜单 ok
-8. i18n 建议直接l10n变成英文
-9. 窗口大小和html大小匹配（尤其是最大化和恢复的时候）
-10. 撤回功能(要纯自己实现) ok 但注意现在是深拷贝
-11. 设置
-12. 用户善良的功能，快捷键，工具栏
-13. 优化
-14. AI
-15. 社区仓库
+| Feature                     | Status   | Notes                                                                |
+| --------------------------- | -------- | -------------------------------------------------------------------- |
+| Displaying topology graphs  | ✅ Done   |                                                                      |
+| File reading and saving     | ✅ Done   | Supports saving and loading graph data.                              |
+| Node content editing        | ✅ Done   | Tested with rich text and images.                                    |
+| Canvas resizing             | ✅ Done   | Fully resizable canvas.                                              |
+| Node aesthetics             | ✅ Done   | Styled nodes to resemble sticky notes with optional pushpin icons.   |
+| Right-click menus           | ✅ Done   | Context menus for both nodes and the canvas are functional.          |
+| Combo features              | ✅ Done   | Includes right-click menu options.                                   |
+| Internationalization (i18n) | 🚧 To-Do | Plan to localize directly to English (l10n).                         |
+| Window size synchronization | 🚧 To-Do | Match HTML and app window sizes, especially for maximize/restore.    |
+| Undo functionality          | ✅ Done   | Implemented with deep copy but needs further testing for robustness. |
+| Settings                    | 🚧 To-Do | Add configuration options.                                           |
+| User-friendly features      | 🚧 To-Do | Include shortcuts and a toolbar for better usability.                |
+| Optimization                | 🚧 To-Do | Improve performance and UI responsiveness.                           |
+| AI integration              | 🚧 To-Do | Explore AI-powered features.                                         |
+| Community repository        | 🚧 To-Do | Consider creating a community-driven plugin system.                  |
+
+## Future Plans
+
+- Add **AI capabilities** for node suggestions and graph optimization.
+- Build a **community repository** to share graph templates and plugins.
+- Continuously improve **user experience** with shortcuts, toolbars, and settings.
+
+---
+
+This project is a work in progress and serves as a personal tool for idea organization. While it isn't publicly shared, its features aim to make graph-based thinking and planning more intuitive and visually engaging.

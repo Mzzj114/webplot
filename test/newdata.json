@@ -3,77 +3,82 @@
         {
             "id": "demo-node-1",
             "style": {
-                "x": 182,
-                "y": 267,
+                "x": 762.0000152587891,
+                "y": -154,
                 "size": [
-                    85,
-                    58
+                    95,
+                    68
                 ],
-                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 1</p>\n</div>\n    ",
-                "zIndex": 6,
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px\"><p>node 1</p>\n</div>\n    <div id='md' style=\"display: none;\">bm9kZSAx</div>",
+                "zIndex": 23,
                 "z": 0
             },
-            "data": {}
+            "data": {},
+            "states": []
         },
         {
             "id": "demo-node-2",
             "style": {
-                "x": 559,
-                "y": 104,
+                "x": 817.0000152587891,
+                "y": -9,
                 "size": [
-                    85,
-                    58
+                    95,
+                    68
                 ],
-                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 2</p>\n</div>\n    ",
-                "zIndex": 8,
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px\"><p>node 2</p>\n</div>\n    <div id='md' style=\"display: none;\">bm9kZSAy</div>",
+                "zIndex": 21,
                 "z": 0
             },
-            "data": {}
+            "data": {},
+            "states": []
         },
         {
             "id": "demo-node-3",
             "style": {
-                "x": 225,
-                "y": 60,
+                "x": 704.0000152587891,
+                "y": 108,
                 "zIndex": 3,
                 "size": [
-                    86,
-                    58
+                    96,
+                    68
                 ],
-                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node-3</p>\n</div>\n    ",
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px\"><p>node-3</p>\n</div>\n    <div id='md' style=\"display: none;\">bm9kZS0z</div>",
                 "z": 0
             },
-            "data": {}
+            "data": {},
+            "states": []
         },
         {
             "id": "demo-node-4",
             "style": {
-                "x": 390,
-                "y": 48,
-                "zIndex": 4,
+                "x": 506.00001525878906,
+                "y": 8,
+                "zIndex": 20,
                 "size": [
-                    85,
-                    58
+                    95,
+                    68
                 ],
-                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node 4</p>\n</div>\n    ",
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px\"><p>node 4</p>\n</div>\n    <div id='md' style=\"display: none;\">bm9kZSA0</div>",
                 "z": 0
             },
-            "data": {}
+            "data": {},
+            "states": []
         },
         {
             "id": "demo-node-5",
             "style": {
-                "x": 410,
-                "y": 301,
-                "zIndex": 7,
+                "x": 523.0000152587891,
+                "y": -187,
+                "zIndex": 22,
                 "size": [
-                    86,
-                    58
+                    96,
+                    68
                 ],
-                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-color: #fff; color: #5F5F5F; border-color: #eee; padding: 20px\"><p>node-5</p>\n</div>\n    ",
+                "innerHTML": "\n    <div style=\"position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px\"><p>node-5</p>\n</div>\n    <div id='md' style=\"display: none;\">bm9kZS01</div>",
                 "z": 0
             },
-            "data": {}
+            "data": {},
+            "states": []
         }
     ],
     "edges": [
@@ -81,39 +86,49 @@
             "source": "demo-node-1",
             "target": "demo-node-2",
             "style": {
-                "zIndex": -1,
+                "zIndex": 10,
                 "sourceNode": "demo-node-1",
                 "targetNode": "demo-node-2"
             },
             "data": {},
-            "id": "demo-node-1-demo-node-2"
+            "id": "demo-node-1-demo-node-2",
+            "states": []
         },
         {
             "id": "demo-node-5-demo-node-4-g1",
             "source": "demo-node-5",
             "target": "demo-node-4",
             "style": {
-                "zIndex": 6
+                "zIndex": 11,
+                "sourceNode": "demo-node-5",
+                "targetNode": "demo-node-4"
             },
-            "data": {}
+            "data": {},
+            "states": []
         },
         {
             "id": "demo-node-2-demo-node-3-g2",
             "source": "demo-node-2",
             "target": "demo-node-3",
             "style": {
-                "zIndex": 7
+                "zIndex": 10,
+                "sourceNode": "demo-node-2",
+                "targetNode": "demo-node-3"
             },
-            "data": {}
+            "data": {},
+            "states": []
         },
         {
             "id": "demo-node-3-demo-node-4-g3",
             "source": "demo-node-3",
             "target": "demo-node-4",
             "style": {
-                "zIndex": 3
+                "zIndex": 11,
+                "sourceNode": "demo-node-3",
+                "targetNode": "demo-node-4"
             },
-            "data": {}
+            "data": {},
+            "states": []
         }
     ],
     "combos": []
