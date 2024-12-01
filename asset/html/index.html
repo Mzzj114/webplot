@@ -8,6 +8,7 @@
     <!--css库-->
     <link rel="stylesheet" href="./../css/layui.css">
     <link rel="stylesheet" href="./../css/simplemde.min.css">
+    <link rel="stylesheet" href="./../css/index.css">
 </head>
 
 <body>
@@ -18,10 +19,11 @@
             <li class="layui-nav-item">
                 <a href="javascript:;">File</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="javascript:pywebview.api.open_file();">Open local file</a></dd>
+                    <dd><a href="javascript:pywebview.api.open_file();"><i class="layui-icon layui-icon-file"></i> Open local file</a></dd>
                     <dd><a href="javascript:import_data_from_web();">Import from web</a></dd>
                     <dd><a href="javascript:pywebview.api.save_file();">Save file</a></dd>
                     <dd><a href="javascript:pywebview.api.save_file_as();">Save file as</a></dd>
+                    <dd><a href="javascript:window.print();">Print</a></dd>
                     <!--<dd><a href="javascript:pywebview.api.window_close();">关闭</a></dd>-->
                 </dl>
             </li>
@@ -65,8 +67,8 @@
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="console.log(pywebview.api.get_current_file_path());">
                 <i class="layui-icon layui-icon-edit"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
-                <i class="layui-icon layui-icon-delete"></i>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.print();">
+                <i class="layui-icon layui-icon-print"></i>
             </button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
                 <i class="layui-icon layui-icon-share"></i>

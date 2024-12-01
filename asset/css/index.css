@@ -1,0 +1,8 @@
+@media print {
+    #ID-navbar {
+        display: none;
+    }
+    #ID-toolbar {
+        display: none;
+    }
+}
