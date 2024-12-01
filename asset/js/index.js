@@ -15,7 +15,7 @@ const graph_data = {
         style: {
             x: 200,
             y: 200,
-            size: [85, 58],
+            size: [100, 58],
             innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 1</p></div>',
         }
     },
@@ -24,7 +24,7 @@ const graph_data = {
             style: {
                 x: 400,
                 y: 200,
-                size: [85, 58],
+                size: [100, 58],
                 innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 2</p></div>',
             }
         },
@@ -91,7 +91,19 @@ const graph = new Graph({
         type: 'html',
         style: {
             // size: [100, 50],
+            badge: false,
         },
+        state: {
+            selected: {
+                //size: [205, 60],
+                halo: false, //有显示bug
+                badge: true,
+                badges: [
+                    {text: "√", placement: "top-right"}
+                ],
+                badgeFontSize: 12,
+            },
+        }
     },
     edge: {
         type: "quadratic",
@@ -118,6 +130,15 @@ const graph = new Graph({
         // layout: 'force',
     },
     behaviors: [{
+        key: 'click-select',
+        type: 'click-select',
+        state: 'selected',
+        onClick: (event) => {
+            if (event.target.type === undefined) {return;}
+            console.log("click-select", event);
+            console.log("stated nodes", graph.getElementDataByState('node', 'selected'));
+        },
+    },{
         key: 'brush-select',
         type: 'brush-select',
         trigger: ['shift'],
