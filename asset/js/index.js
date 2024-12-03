@@ -181,33 +181,40 @@ const graph = new Graph({
                 console.log("targetType", e.targetType);
                 console.log("id", e.target.id);
 
+                let items = [];
+
                 if (e.targetType === "node") {
                     let selected_nodes = graph.getElementDataByState('node', 'selected');
-                    let items = [
-                        {name: 'Edit', value: "edit"},
-                        {name: 'Delete', value: "delete"},
-                    ];
+                    
+                    items.push({name: 'Edit node', value: "edit"});
+                    items.push({name: 'Delete node', value: "delete"});
+                
                     if (selected_nodes.length > 1) {
-                        items.push({name: 'Add combo', value: "add_combo"});
+                        items.push({name: 'Create combo', value: "add_combo"});
                     }
-                    return items;
+                    if (selected_nodes.length === 2) {
+                        items.push({name: 'Create edge', value: "create_edge"});
+                    }
+                    
                 } else if (e.targetType === "edge") {
-                    return [
-                        {name: 'Edit label', value: "edit"},
-                        {name: 'Remove edge', value: "delete"},
-                    ]
+                    items.push({name: 'Edit label', value: "edit"});
+                    items.push({name: 'Remove edge', value: "delete"});
+                    
                 } else if (e.targetType === "combo") {
-                    return [
-                        {name: 'Edit label', value: "edit"},
-                        {name: 'Remove combo', value: "delete"},
-                    ]
+                    items.push({name: 'Edit label', value: "edit"});
+                    items.push({name: 'Remove combo', value: "delete"});
+                    
                 } else if (e.targetType === "canvas") {
-                    return [
-                        {name: 'Add node', value: "add_node"},
-                        {name: 'Auto layout', value: "auto_layout"},
-                    ]
+                    items.push({name: 'Add node', value: "add_node"});
+                    items.push({name: 'Auto layout', value: "auto_layout"});
                 }
-                return [];
+                if (graph.getElementDataByState('node','selected').length>0){
+                    items.push({name: 'Remove selection', value: "delete_selected"});
+                }
+                if (graph.getElementDataByState('edge','selected').length>0){
+                    items.push({name: 'Remove all edges', value: "delete_selected_edges"});
+                }
+                return items;
             },
             onClick: (value, menu_item, e) => {
                 console.log("value", value);
@@ -215,22 +222,49 @@ const graph = new Graph({
                 console.log("e.type", e.type); // 这个值有三种情况，node，edge和undefined，undefined表示点击空白画布区域
                 console.log("e", e);
 
-                switch (e.type) {
-                    case "node":
-                        node_dropdown_menu(value, e);
-                        break;
-                    case "edge":
-                        edge_dropdown_menu(value, e);
-                        break;
-                    case "combo":
-                        combo_dropdown_menu(value, e);
-                        break;
-                    case undefined:
-                        canvas_dropdown_menu(value, e);
-                        break;
-                    default:
-                        console.log("unknown e.type");
-                        break;
+                if (value === "delete_selected"){
+                    let selected_nodes = graph.getElementDataByState('node','selected');
+                    let selected_node_ids = [];
+                    let selected_combos = graph.getElementDataByState('combo','selected');
+                    let selected_combo_ids = [];
+                    
+                    save_graph_state_history();
+
+                    selected_nodes.forEach((item) => {selected_node_ids.push(item.id);});
+                    graph.removeNodeData(selected_node_ids);
+                    
+                    selected_combos.forEach((item) => {selected_combo_ids.push(item.id);});
+                    graph.removeComboData(selected_combo_ids);
+
+                    graph.render();
+                } else if (value === "delete_selected_edges"){
+                    let selected_edges = graph.getElementDataByState('edge','selected');
+                    let selected_edge_ids = [];
+
+                    selected_edges.forEach((item) => {selected_edge_ids.push(item.id);});
+                    save_graph_state_history();
+                    graph.removeEdgeData(selected_edge_ids);
+
+                    graph.render();
+                }
+                else{
+                    switch (e.type) {
+                        case "node":
+                            node_dropdown_menu(value, e);
+                            break;
+                        case "edge":
+                            edge_dropdown_menu(value, e);
+                            break;
+                        case "combo":
+                            combo_dropdown_menu(value, e);
+                            break;
+                        case undefined:
+                            canvas_dropdown_menu(value, e);
+                            break;
+                        default:
+                            console.log("unknown e.type");
+                            break;
+                    }
                 }
             },
             enable: true,
@@ -479,6 +513,16 @@ function node_dropdown_menu(operation, e) {
             node_ids.push(node.id);
         });
         open_add_combo_layer(node_ids);
+    } else if (operation === "create_edge") {
+        let selected_nodes = graph.getElementDataByState("node","selected");
+        console.log("selected_nodes", selected_nodes);
+        if (selected_nodes.length !== 2) {
+            layer.msg("Please select two nodes");
+            return;
+        }
+        save_graph_state_history();
+        graph.addEdgeData([{ source: selected_nodes[0].id, target: selected_nodes[1].id }]);
+        graph.render();
     }
 
 }
