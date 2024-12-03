@@ -133,6 +133,8 @@ const graph = new Graph({
         key: 'click-select',
         type: 'click-select',
         state: 'selected',
+        multiple: true,
+        //trigger: 'ctrl',
         onClick: (event) => {
             if (event.target.type === undefined) {return;}
             console.log("click-select", event);
@@ -141,15 +143,14 @@ const graph = new Graph({
     },{
         key: 'brush-select',
         type: 'brush-select',
+        immediately: false,
+        mode: 'default',
+        state: 'selected',
         trigger: ['shift'],
-        enableElements: ['node', 'combo'],
-        onSelect: (event) => {
-            console.log("brush-selected, ready to create combo", event);
-            if (isEmptyRecord(event)) {
-                return;
-            }
-            open_add_combo_layer(event);
-        },
+        enableElements: ['node', 'combo', 'edge'],
+        // onSelect: (event) => {
+        // //最好保持注释，要不然会有bug，改变的state只有一瞬间
+        // },
         enable: (event) => event.shiftKey === true,
     }, {
         key: 'zoom-canvas',
@@ -181,10 +182,15 @@ const graph = new Graph({
                 console.log("id", e.target.id);
 
                 if (e.targetType === "node") {
-                    return [
+                    let selected_nodes = graph.getElementDataByState('node', 'selected');
+                    let items = [
                         {name: 'Edit', value: "edit"},
                         {name: 'Delete', value: "delete"},
                     ];
+                    if (selected_nodes.length > 1) {
+                        items.push({name: 'Add combo', value: "add_combo"});
+                    }
+                    return items;
                 } else if (e.targetType === "edge") {
                     return [
                         {name: 'Edit label', value: "edit"},
@@ -288,7 +294,8 @@ function isEmptyRecord(record) {
 }
 
 // 主要函数 创建combo
-function open_add_combo_layer(event) {
+function open_add_combo_layer(ids) {
+    console.log("ids", ids);
     // 现在combo会把首次输入的标签作为id之后可以改
     layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
         layer.close(index);
@@ -296,10 +303,10 @@ function open_add_combo_layer(event) {
         let combo_id = text;
         graph.addComboData([{id: combo_id, type: 'rect', style:{labelText: combo_id}}]);
         console.log("combo_id", combo_id);
-        for (const node_id in event) {
+        ids.forEach(node_id => {
             console.log('This node should be selected', node_id);
             graph.updateNodeData([{id: node_id, combo: combo_id}]);
-        }
+        });
         graph.render();
     });
 }
@@ -464,6 +471,14 @@ function node_dropdown_menu(operation, e) {
         save_graph_state_history();
         graph.removeNodeData([e.id]);
         graph.render();
+    } else if (operation === "add_combo"){
+        let selected_nodes = graph.getElementDataByState("node","selected");
+        console.log("selected_nodes", selected_nodes);
+        let node_ids = [];
+        selected_nodes.forEach(node => {
+            node_ids.push(node.id);
+        });
+        open_add_combo_layer(node_ids);
     }
 
 }
@@ -506,6 +521,7 @@ function combo_dropdown_menu(operation, e) {
 
 function canvas_dropdown_menu(operation, e) {
     console.log("canvas_dropdown_menu", operation);
+    //我指望从e里获得下拉菜单或者鼠标的位置，但是好像没有
     console.log(e);
 
     if (operation === "add_node" && config["General"]["doAutoGenerateNodeId"] === false) {
@@ -533,6 +549,30 @@ function canvas_dropdown_menu(operation, e) {
         graph.render();
     }
 }
+
+// 键盘快捷键处理
+document.addEventListener("keydown", function (e) {
+    console.log("keydown", e.key);
+    let selected_nodes = graph.getElementDataByState("node", "selected");
+    if (selected_nodes.length > 0){
+        if (e.ctrlKey){
+
+        }
+        else if (e.altKey){
+
+        }
+        else if (e.shiftKey){
+
+        }
+        else{
+            // 现有一映射表maps，一值e.key，如果在maps的值里找不到key，那么返回，如果找到了，那么根据键进行操作
+            let maps = config.KeyBoardShortCuts.None;
+            console.log("maps", maps);
+        }
+    }
+    // 什么都没有就按原来方法处理事件
+    return false;
+});
 
 // main
 console.log("rendering graph");

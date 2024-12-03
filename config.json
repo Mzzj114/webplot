@@ -1,4 +1,18 @@
 {
-    "General": {"doAutoGenerateId": "true"}
+    "General": {"doAutoGenerateId": "true"},
+    "KeyBoardShortCuts": {
+        "Ctrl" : {
 
+        },
+        "Alt" : {
+
+        },
+        "Shift" : {
+
+        },
+        "None" : {
+            "add_node": "A",
+            "delete_node": "Backspace"
+        }
+    }
 }

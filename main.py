@@ -40,6 +40,7 @@ class JSApi:
         self.config = config
         with open('config.json', 'w') as jsonfile:
             json.dump(self.config, jsonfile)
+        main_window.evaluate_js('config = pywebview.api.get_config();')
 
     def open_file(self):
         # 选择文件
