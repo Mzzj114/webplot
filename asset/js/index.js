@@ -136,11 +136,13 @@ const graph = new Graph({
         multiple: true,
         //trigger: 'ctrl',
         onClick: (event) => {
-            if (event.target.type === undefined) {return;}
+            if (event.target.type === undefined) {
+                return;
+            }
             console.log("click-select", event);
             console.log("stated nodes", graph.getElementDataByState('node', 'selected'));
         },
-    },{
+    }, {
         key: 'brush-select',
         type: 'brush-select',
         immediately: false,
@@ -186,35 +188,51 @@ const graph = new Graph({
 
                 if (e.targetType === "node") {
                     let selected_nodes = graph.getElementDataByState('node', 'selected');
-                    
+
                     items.push({name: 'Edit node', value: "edit"});
                     items.push({name: 'Delete node', value: "delete"});
-                
+
                     if (selected_nodes.length > 1) {
                         items.push({name: 'Create combo', value: "add_combo"});
                     }
                     if (selected_nodes.length === 2) {
                         items.push({name: 'Create edge', value: "create_edge"});
                     }
-                    
+
                 } else if (e.targetType === "edge") {
                     items.push({name: 'Edit label', value: "edit"});
                     items.push({name: 'Remove edge', value: "delete"});
-                    
+
                 } else if (e.targetType === "combo") {
                     items.push({name: 'Edit label', value: "edit"});
                     items.push({name: 'Remove combo', value: "delete"});
-                    
+
                 } else if (e.targetType === "canvas") {
                     items.push({name: 'Add node', value: "add_node"});
                     items.push({name: 'Auto layout', value: "auto_layout"});
                 }
-                if (graph.getElementDataByState('node','selected').length>0){
+                if (graph.getElementDataByState('node', 'selected').length > 0) {
                     items.push({name: 'Remove selection', value: "delete_selected"});
                 }
-                if (graph.getElementDataByState('edge','selected').length>0){
+                if (graph.getElementDataByState('edge', 'selected').length > 0) {
                     items.push({name: 'Remove all edges', value: "delete_selected_edges"});
                 }
+
+                items.sort((a, b) => {
+                    // 提取每个对象的 name 属性的首字母
+                    const nameA = a.name.charAt(0).toLowerCase();
+                    const nameB = b.name.charAt(0).toLowerCase();
+
+                    // 进行比较并返回结果
+                    if (nameA < nameB) {
+                        return -1;
+                    } else if (nameA > nameB) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+
                 return items;
             },
             onClick: on_dropdown_menu_click,
@@ -278,24 +296,6 @@ function isEmptyRecord(record) {
     return true;
 }
 
-// 主要函数 创建combo
-function open_add_combo_layer(ids) {
-    console.log("ids", ids);
-    // 现在combo会把首次输入的标签作为id之后可以改
-    layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
-        layer.close(index);
-        save_graph_state_history();
-        let combo_id = text;
-        graph.addComboData([{id: combo_id, type: 'rect', style:{labelText: combo_id}}]);
-        console.log("combo_id", combo_id);
-        ids.forEach(node_id => {
-            console.log('This node should be selected', node_id);
-            graph.updateNodeData([{id: node_id, combo: combo_id}]);
-        });
-        graph.render();
-    });
-}
-
 // 主要函数 获取文件内容
 function set_file_content(content) {
     // graph the json content
@@ -335,42 +335,88 @@ function get_container_size(htmlString) {
     return [width, height];
 }
 
-// 主要函数 打开编辑节点对话框
-function open_edit_node_layer(node_id) {
-    console.log("edit_node_layer", node_id);
+class LayerFunctions {
+    constructor() {}
 
-    let node_data = graph.getNodeData(node_id);
-    let markdown = node_data.data.markdown;
-    if (markdown === undefined) markdown = "";
+    open_edit_node_layer(node_id) {
+        console.log("edit_node_layer", node_id);
 
-    console.log("markdown", markdown);
+        let node_data = graph.getNodeData(node_id);
+        let markdown = node_data.data.markdown;
+        if (markdown === undefined) markdown = "";
 
-    // 构造弹窗
-    let edit_node_layer_content = `
-        <div class="layui-input-group">
-            <div class="layui-input-prefix">Node id</div>
-            <input id="ID-id-edit" type="text" class="layui-input" value="${node_id}" disabled>
-        </div>      
+        console.log("markdown", markdown);
 
-        <textarea id="ID-editor">${markdown}</textarea>
-        <button type="button" class="layui-btn" onclick="save_node_content('${node_id}', simplemde.value())">Save</button>
-        <script src="./../js/simplemde.min.js"></script>
-        <script>
-            var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });
-        </script>
-        `
+        // 构造弹窗
+        let edit_node_layer_content = `
+            <div class="layui-input-group">
+                <div class="layui-input-prefix">Node id</div>
+                <input id="ID-id-edit" type="text" class="layui-input" value="${node_id}" disabled>
+            </div>      
+    
+            <textarea id="ID-editor">${markdown}</textarea>
+            <button type="button" class="layui-btn" onclick="save_node_content('${node_id}', simplemde.value())">Save</button>
+            <script src="./../js/simplemde.min.js"></script>
+            <script>
+                var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });
+            </script>
+            `
 
-    layer.open({
-        type: 1, // page 层类型
-        area: ['800px', '500px'],
-        title: 'Edit node',
-        shade: 0.6, // 遮罩透明度
-        shadeClose: true, // 点击遮罩区域，关闭弹层
-        maxmin: true, // 允许全屏最小化
-        anim: 0, // 0-6 的动画形式，-1 不开启
-        content: edit_node_layer_content,
-    });
+        layer.open({
+            type: 1, // page 层类型
+            area: ['800px', '500px'],
+            title: 'Edit node',
+            shade: 0.6, // 遮罩透明度
+            shadeClose: true, // 点击遮罩区域，关闭弹层
+            maxmin: true, // 允许全屏最小化
+            anim: 0, // 0-6 的动画形式，-1 不开启
+            content: edit_node_layer_content,
+        });
+    }
+
+    open_edit_edge_layer(edge_id) {
+        console.log("open_edit_edge_layer edge_id", edge_id);
+        layer.prompt({title: 'Enter label',}, function (text, index) {
+                layer.close(index);
+                save_graph_state_history();
+                graph.updateEdgeData([{id: edge_id, style: {labelText: text}}]);
+
+                graph.render();
+            });
+    }
+
+    open_edit_combo_layer(combo_id) {
+        console.log("open_edit_combo_layer combo_id", combo_id);
+        layer.prompt({title: 'Enter label',}, function (text, index) {
+                layer.close(index);
+                save_graph_state_history();
+                graph.updateComboData([{id: combo_id, style: {labelText: text}}]);
+
+                graph.render();
+            });
+    }
+
+    // 主要函数 创建combo
+    open_add_combo_layer(ids) {
+        console.log("ids", ids);
+        // 现在combo会把首次输入的标签作为id之后可以改
+        layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
+            layer.close(index);
+            save_graph_state_history();
+            let combo_id = text;
+            graph.addComboData([{id: combo_id, type: 'rect', style: {labelText: combo_id}}]);
+            console.log("combo_id", combo_id);
+            ids.forEach(node_id => {
+                console.log('This node should be selected', node_id);
+                graph.updateNodeData([{id: node_id, combo: combo_id}]);
+            });
+            graph.render();
+        });
+    }
+
 }
+layer_functions = new LayerFunctions();
+
 /*
 // 对非 ASCII 字符编码
 function utf8ToBase64(str) {
@@ -382,6 +428,7 @@ function base64ToUtf8(base64) {
     return decodeURIComponent(escape(atob(base64)));
 }
 */
+
 // 辅助函数 有关渲染的工序
 function render_md_content(md) {
     // 创建一个自定义渲染器，继承自默认的渲染器
@@ -403,7 +450,7 @@ function render_md_content(md) {
         return base.replace(/^<a\s/, '<a target="_blank" rel="noopener noreferrer" ');
     };
 
-    let html_content = get_node_html_with_border(marked.parse(md,{renderer: customRenderer}));
+    let html_content = get_node_html_with_border(marked.parse(md, {renderer: customRenderer}));
 
     console.log("updating html_content", html_content);
     return html_content;
@@ -448,44 +495,100 @@ function import_data_from_web() {
 
 // 功能
 class GeneralFunctions {
-    constructor(){}
+    constructor() {}
+
     delete_selected() {
         console.log("delete_selected");
-        let selected_nodes = graph.getElementDataByState('node','selected');
+        let selected_nodes = graph.getElementDataByState('node', 'selected');
         let selected_node_ids = [];
-        let selected_combos = graph.getElementDataByState('combo','selected');
+        let selected_combos = graph.getElementDataByState('combo', 'selected');
         let selected_combo_ids = [];
-        
+
         save_graph_state_history();
 
-        selected_nodes.forEach((item) => {selected_node_ids.push(item.id);});
+        selected_nodes.forEach((item) => {
+            selected_node_ids.push(item.id);
+        });
         graph.removeNodeData(selected_node_ids);
-        
-        selected_combos.forEach((item) => {selected_combo_ids.push(item.id);});
+
+        selected_combos.forEach((item) => {
+            selected_combo_ids.push(item.id);
+        });
         graph.removeComboData(selected_combo_ids);
 
         graph.render();
     }
-    delete_selected_edges(){
-        let selected_edges = graph.getElementDataByState('edge','selected');
+
+    delete_selected_edges() {
+        let selected_edges = graph.getElementDataByState('edge', 'selected');
         let selected_edge_ids = [];
 
-        selected_edges.forEach((item) => {selected_edge_ids.push(item.id);});
+        selected_edges.forEach((item) => {
+            selected_edge_ids.push(item.id);
+        });
         save_graph_state_history();
         graph.removeEdgeData(selected_edge_ids);
 
         graph.render();
     }
+
+    delete_node(node_id) {
+        save_graph_state_history();
+        graph.removeNodeData([node_id]);
+        graph.render();
+    }
+
+    delete_edge(edge_id) {
+        save_graph_state_history();
+        graph.removeEdgeData([edge_id]);
+        graph.render();
+    }
+
+    combo_selected() {
+        let selected_nodes = graph.getElementDataByState("node", "selected");
+        console.log("selected_nodes", selected_nodes);
+        let node_ids = [];
+        selected_nodes.forEach(node => {
+            node_ids.push(node.id);
+        });
+        layer_functions.open_add_combo_layer(node_ids);
+    }
+
+    add_node(){
+        if (config["General"]["doAutoGenerateNodeId"] === false) {
+            layer.prompt({title: 'Enter node id',}, function (text, index) {
+                layer.close(index);
+                graph.addNodeData([{
+                    id: text,
+                    style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
+                }]);
+                //save_graph_state_history();下方函数有一次了
+                save_node_content(text, "");
+            });
+        } else {
+            let node_id = generate_node_id();
+            save_graph_state_history();
+            graph.addNodeData([{
+                id: node_id,
+                style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
+            }]);
+            save_node_content(node_id, "");
+
+        }
+    }
 }
+
 let general_functions = new GeneralFunctions();
 
 // 下拉菜单操作
-function on_dropdown_menu_click(value, menu_item = null, e = null){
+function on_dropdown_menu_click(value, menu_item = null, e = null) {
     console.log("on_dropdown_menu_click", value);
     console.log("e.type", e.type); // 这个值有三种情况，node，edge和undefined，undefined表示点击空白画布区域
 
-    if(general_dropdown_menu(value) === false){
-        if (e === null){return;} //有些时候直接调用函数没有后俩参数
+    if (general_dropdown_menu(value) === false) {
+        if (e === null) {
+            return;
+        } //有些时候直接调用函数没有后俩参数
         switch (e.type) {
             case "node":
                 node_dropdown_menu(value, e);
@@ -507,9 +610,9 @@ function on_dropdown_menu_click(value, menu_item = null, e = null){
 }
 
 function general_dropdown_menu(operation) {
-    if (operation === "delete_selected"){
+    if (operation === "delete_selected") {
         general_functions.delete_selected();
-    } else if (operation === "delete_selected_edges"){
+    } else if (operation === "delete_selected_edges") {
         general_functions.delete_selected_edges();
     } else {
         return false;
@@ -521,28 +624,20 @@ function node_dropdown_menu(operation, e) {
     console.log("node_dropdown_menu", operation);
     if (operation === "edit") {
         // 严谨来说应该在编辑窗口的回调函数里调用save_graph_state_history();
-        open_edit_node_layer(e.id);
+        layer_functions.open_edit_node_layer(e.id);
     } else if (operation === "delete") {
-        save_graph_state_history();
-        graph.removeNodeData([e.id]);
-        graph.render();
-    } else if (operation === "add_combo"){
-        let selected_nodes = graph.getElementDataByState("node","selected");
-        console.log("selected_nodes", selected_nodes);
-        let node_ids = [];
-        selected_nodes.forEach(node => {
-            node_ids.push(node.id);
-        });
-        open_add_combo_layer(node_ids);
+        general_functions.delete_node(e.id);
+    } else if (operation === "add_combo") {
+        general_functions.combo_selected();
     } else if (operation === "create_edge") {
-        let selected_nodes = graph.getElementDataByState("node","selected");
+        let selected_nodes = graph.getElementDataByState("node", "selected");
         console.log("selected_nodes", selected_nodes);
         if (selected_nodes.length !== 2) {
             layer.msg("Please select two nodes");
             return;
         }
         save_graph_state_history();
-        graph.addEdgeData([{ source: selected_nodes[0].id, target: selected_nodes[1].id }]);
+        graph.addEdgeData([{source: selected_nodes[0].id, target: selected_nodes[1].id}]);
         graph.render();
     }
 
@@ -551,18 +646,9 @@ function node_dropdown_menu(operation, e) {
 function edge_dropdown_menu(operation, e) {
     console.log("edge_dropdown_menu", operation);
     if (operation === "delete") {
-        save_graph_state_history();
-        graph.removeEdgeData([e.id]);
-        graph.render();
-    }
-    else if (operation === "edit") {
-        layer.prompt({title: 'Enter label',}, function (text, index) {
-            layer.close(index);
-            save_graph_state_history();
-            graph.updateEdgeData([{id: e.id,style: {labelText: text}}]);
-
-            graph.render();
-        });
+        general_functions.delete_edge(e.id);
+    } else if (operation === "edit") {
+        layer_functions.open_edit_edge_layer(e.id);
     }
 }
 
@@ -572,15 +658,8 @@ function combo_dropdown_menu(operation, e) {
         save_graph_state_history();
         graph.removeComboData([e.id]);
         graph.render();
-    }
-    else if (operation === "edit") {
-        layer.prompt({title: 'Enter label',}, function (text, index) {
-            layer.close(index);
-            save_graph_state_history();
-            graph.updateComboData([{id: e.id,style: {labelText: text}}]);
-
-            graph.render();
-        });
+    } else if (operation === "edit") {
+        layer_functions.open_edit_combo_layer(e.id);
     }
 }
 
@@ -589,28 +668,11 @@ function canvas_dropdown_menu(operation, e) {
     //我指望从e里获得下拉菜单或者鼠标的位置，但是好像没有
     console.log(e);
 
-    if (operation === "add_node" && config["General"]["doAutoGenerateNodeId"] === false) {
-        layer.prompt({title: 'Enter node id',}, function (text, index) {
-            layer.close(index);
-            graph.addNodeData([{
-                id: text,
-                style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
-            }]);
-            //save_graph_state_history();下方函数有一次了
-            save_node_content(text, "");
-        });
-    } else if (operation === "add_node") {
-        let node_id = generate_node_id();
-        save_graph_state_history();
-        graph.addNodeData([{
-            id: node_id,
-            style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
-        }]);
-        save_node_content(node_id, "");
-
+    if (operation === "add_node") {
+        general_functions.add_node();
     } else if (operation === "auto_layout") {
         //save_graph_state_history();
-        graph.setLayout({type: 'dendrogram',direction: "TB", nodeStep: 40});
+        graph.setLayout({type: 'dendrogram', direction: "TB", nodeStep: 40});
         graph.render();
     }
 }
@@ -621,16 +683,13 @@ document.addEventListener("keydown", function (e) {
     let selected_nodes = graph.getElementDataByState("node", "selected");
     let IsSelectedNode = selected_nodes.length > 0;
 
-    if (e.ctrlKey){
+    if (e.ctrlKey) {
 
-    }
-    else if (e.altKey){
+    } else if (e.altKey) {
 
-    }
-    else if (e.shiftKey){
+    } else if (e.shiftKey) {
 
-    }
-    else{ //没有按下shift或ctrl
+    } else { //没有按下shift或ctrl
         // 现有一映射表maps，一值e.key，如果在maps的值里找不到key，那么返回，如果找到了，那么根据键进行操作
         let maps = config.KeyBoardShortCuts.None;
         console.log("maps", maps);
@@ -638,8 +697,12 @@ document.addEventListener("keydown", function (e) {
         if (maps.hasOwnProperty(e.key)) {
             let action = maps[e.key];
             switch (action) {
-                case "add_node": canvas_dropdown_menu(operation="add_node", e=null); break;
-                case "delete_selected": general_dropdown_menu("delete_selected"); break;
+                case "add_node":
+                    general_functions.add_node();
+                    break;
+                case "delete_selected":
+                    general_functions.delete_selected();
+                    break;
                 default:
                     return false;
             }
@@ -647,7 +710,7 @@ document.addEventListener("keydown", function (e) {
             return false;
         }
     }
-    
+
     // 什么都没有就按原来方法处理事件
     return false;
 });
