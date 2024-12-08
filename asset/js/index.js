@@ -171,7 +171,8 @@ const graph = new Graph({
     }, {
         key: 'create-edge',
         type: 'create-edge',
-        enable: (event) => event.shiftKey === true,
+        //enable: (event) => event.shiftKey === true,
+        enable: false,
     }],
     plugins: [
         {
@@ -216,57 +217,7 @@ const graph = new Graph({
                 }
                 return items;
             },
-            onClick: (value, menu_item, e) => {
-                console.log("value", value);
-                console.log("e.id", e.id);
-                console.log("e.type", e.type); // 这个值有三种情况，node，edge和undefined，undefined表示点击空白画布区域
-                console.log("e", e);
-
-                if (value === "delete_selected"){
-                    let selected_nodes = graph.getElementDataByState('node','selected');
-                    let selected_node_ids = [];
-                    let selected_combos = graph.getElementDataByState('combo','selected');
-                    let selected_combo_ids = [];
-                    
-                    save_graph_state_history();
-
-                    selected_nodes.forEach((item) => {selected_node_ids.push(item.id);});
-                    graph.removeNodeData(selected_node_ids);
-                    
-                    selected_combos.forEach((item) => {selected_combo_ids.push(item.id);});
-                    graph.removeComboData(selected_combo_ids);
-
-                    graph.render();
-                } else if (value === "delete_selected_edges"){
-                    let selected_edges = graph.getElementDataByState('edge','selected');
-                    let selected_edge_ids = [];
-
-                    selected_edges.forEach((item) => {selected_edge_ids.push(item.id);});
-                    save_graph_state_history();
-                    graph.removeEdgeData(selected_edge_ids);
-
-                    graph.render();
-                }
-                else{
-                    switch (e.type) {
-                        case "node":
-                            node_dropdown_menu(value, e);
-                            break;
-                        case "edge":
-                            edge_dropdown_menu(value, e);
-                            break;
-                        case "combo":
-                            combo_dropdown_menu(value, e);
-                            break;
-                        case undefined:
-                            canvas_dropdown_menu(value, e);
-                            break;
-                        default:
-                            console.log("unknown e.type");
-                            break;
-                    }
-                }
-            },
+            onClick: on_dropdown_menu_click,
             enable: true,
 
         }
@@ -495,7 +446,77 @@ function import_data_from_web() {
     });
 }
 
-// 下拉菜单
+// 功能
+class GeneralFunctions {
+    constructor(){}
+    delete_selected() {
+        console.log("delete_selected");
+        let selected_nodes = graph.getElementDataByState('node','selected');
+        let selected_node_ids = [];
+        let selected_combos = graph.getElementDataByState('combo','selected');
+        let selected_combo_ids = [];
+        
+        save_graph_state_history();
+
+        selected_nodes.forEach((item) => {selected_node_ids.push(item.id);});
+        graph.removeNodeData(selected_node_ids);
+        
+        selected_combos.forEach((item) => {selected_combo_ids.push(item.id);});
+        graph.removeComboData(selected_combo_ids);
+
+        graph.render();
+    }
+    delete_selected_edges(){
+        let selected_edges = graph.getElementDataByState('edge','selected');
+        let selected_edge_ids = [];
+
+        selected_edges.forEach((item) => {selected_edge_ids.push(item.id);});
+        save_graph_state_history();
+        graph.removeEdgeData(selected_edge_ids);
+
+        graph.render();
+    }
+}
+let general_functions = new GeneralFunctions();
+
+// 下拉菜单操作
+function on_dropdown_menu_click(value, menu_item = null, e = null){
+    console.log("on_dropdown_menu_click", value);
+    console.log("e.type", e.type); // 这个值有三种情况，node，edge和undefined，undefined表示点击空白画布区域
+
+    if(general_dropdown_menu(value) === false){
+        if (e === null){return;} //有些时候直接调用函数没有后俩参数
+        switch (e.type) {
+            case "node":
+                node_dropdown_menu(value, e);
+                break;
+            case "edge":
+                edge_dropdown_menu(value, e);
+                break;
+            case "combo":
+                combo_dropdown_menu(value, e);
+                break;
+            case undefined:
+                canvas_dropdown_menu(value, e);
+                break;
+            default:
+                console.log("unknown e.type");
+                break;
+        }
+    }
+}
+
+function general_dropdown_menu(operation) {
+    if (operation === "delete_selected"){
+        general_functions.delete_selected();
+    } else if (operation === "delete_selected_edges"){
+        general_functions.delete_selected_edges();
+    } else {
+        return false;
+    }
+    return true;
+}
+
 function node_dropdown_menu(operation, e) {
     console.log("node_dropdown_menu", operation);
     if (operation === "edit") {
@@ -598,22 +619,35 @@ function canvas_dropdown_menu(operation, e) {
 document.addEventListener("keydown", function (e) {
     console.log("keydown", e.key);
     let selected_nodes = graph.getElementDataByState("node", "selected");
-    if (selected_nodes.length > 0){
-        if (e.ctrlKey){
+    let IsSelectedNode = selected_nodes.length > 0;
 
-        }
-        else if (e.altKey){
+    if (e.ctrlKey){
 
-        }
-        else if (e.shiftKey){
+    }
+    else if (e.altKey){
 
-        }
-        else{
-            // 现有一映射表maps，一值e.key，如果在maps的值里找不到key，那么返回，如果找到了，那么根据键进行操作
-            let maps = config.KeyBoardShortCuts.None;
-            console.log("maps", maps);
+    }
+    else if (e.shiftKey){
+
+    }
+    else{ //没有按下shift或ctrl
+        // 现有一映射表maps，一值e.key，如果在maps的值里找不到key，那么返回，如果找到了，那么根据键进行操作
+        let maps = config.KeyBoardShortCuts.None;
+        console.log("maps", maps);
+        // 检查映射表中是否有这个键
+        if (maps.hasOwnProperty(e.key)) {
+            let action = maps[e.key];
+            switch (action) {
+                case "add_node": canvas_dropdown_menu(operation="add_node", e=null); break;
+                case "delete_selected": general_dropdown_menu("delete_selected"); break;
+                default:
+                    return false;
+            }
+        } else { // 没有找到键
+            return false;
         }
     }
+    
     // 什么都没有就按原来方法处理事件
     return false;
 });

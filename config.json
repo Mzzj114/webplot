@@ -11,8 +11,8 @@
 
         },
         "None" : {
-            "add_node": "A",
-            "delete_node": "Backspace"
+            "A" : "add_node",
+            "Backspace" : "delete_selected"
         }
     }
 }
