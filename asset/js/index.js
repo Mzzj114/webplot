@@ -296,13 +296,32 @@ function isEmptyRecord(record) {
     return true;
 }
 
-// 主要函数 获取文件内容
-function set_file_content(content) {
-    // graph the json content
-    console.log("set_file_content");
-    graph.setData(content);
-    graph.render();
+class FileFunctions {
+    constructor() {
+    }
+
+    // 主要函数 获取文件内容
+    set_file_content(content) {
+        // graph the json content
+        console.log("file_functions.set_file_content");
+        graph.setData(content);
+        graph.render();
+    }
+
+    // 这个功能目前没什么用，因为现在的graph是纯为innerHtml设计的，别的图都用不了
+    import_data_from_web() {
+        layer.prompt({title: 'Enter data url',}, function (text, index) {
+            layer.close(index);
+            fetch(text).then((res) => res.json()).then((data) => {
+                graph.setData(data);
+                graph.render();
+            });
+        });
+    }
 }
+let file_functions = new FileFunctions();
+
+
 
 // 辅助函数 获得有样式的div
 function get_node_html_with_border(html) {
@@ -482,19 +501,9 @@ function save_node_content(node_id, md) {
     layer.closeLast();
 }
 
-// 这个功能目前没什么用，因为现在的graph是纯为innerHtml设计的，别的图都用不了
-function import_data_from_web() {
-    layer.prompt({title: 'Enter data url',}, function (text, index) {
-        layer.close(index);
-        fetch(text).then((res) => res.json()).then((data) => {
-            graph.setData(data);
-            graph.render();
-        });
-    });
-}
 
 // 功能
-class GeneralFunctions {
+class GraphFunctions {
     constructor() {}
 
     delete_selected() {
@@ -578,7 +587,7 @@ class GeneralFunctions {
     }
 }
 
-let general_functions = new GeneralFunctions();
+let graph_functions = new GraphFunctions();
 
 // 下拉菜单操作
 function on_dropdown_menu_click(value, menu_item = null, e = null) {
@@ -611,9 +620,9 @@ function on_dropdown_menu_click(value, menu_item = null, e = null) {
 
 function general_dropdown_menu(operation) {
     if (operation === "delete_selected") {
-        general_functions.delete_selected();
+        graph_functions.delete_selected();
     } else if (operation === "delete_selected_edges") {
-        general_functions.delete_selected_edges();
+        graph_functions.delete_selected_edges();
     } else {
         return false;
     }
@@ -626,9 +635,9 @@ function node_dropdown_menu(operation, e) {
         // 严谨来说应该在编辑窗口的回调函数里调用save_graph_state_history();
         layer_functions.open_edit_node_layer(e.id);
     } else if (operation === "delete") {
-        general_functions.delete_node(e.id);
+        graph_functions.delete_node(e.id);
     } else if (operation === "add_combo") {
-        general_functions.combo_selected();
+        graph_functions.combo_selected();
     } else if (operation === "create_edge") {
         let selected_nodes = graph.getElementDataByState("node", "selected");
         console.log("selected_nodes", selected_nodes);
@@ -646,7 +655,7 @@ function node_dropdown_menu(operation, e) {
 function edge_dropdown_menu(operation, e) {
     console.log("edge_dropdown_menu", operation);
     if (operation === "delete") {
-        general_functions.delete_edge(e.id);
+        graph_functions.delete_edge(e.id);
     } else if (operation === "edit") {
         layer_functions.open_edit_edge_layer(e.id);
     }
@@ -669,7 +678,7 @@ function canvas_dropdown_menu(operation, e) {
     console.log(e);
 
     if (operation === "add_node") {
-        general_functions.add_node();
+        graph_functions.add_node();
     } else if (operation === "auto_layout") {
         //save_graph_state_history();
         graph.setLayout({type: 'dendrogram', direction: "TB", nodeStep: 40});
@@ -698,10 +707,10 @@ document.addEventListener("keydown", function (e) {
             let action = maps[e.key];
             switch (action) {
                 case "add_node":
-                    general_functions.add_node();
+                    graph_functions.add_node();
                     break;
                 case "delete_selected":
-                    general_functions.delete_selected();
+                    graph_functions.delete_selected();
                     break;
                 default:
                     return false;
