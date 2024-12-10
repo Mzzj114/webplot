@@ -321,37 +321,10 @@ class FileFunctions {
 }
 let file_functions = new FileFunctions();
 
+class EditorFunctions {
+    constructor() {}
 
-
-// 辅助函数 获得有样式的div
-function get_node_html_with_border(html) {
-    return `
-    <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px">${html}</div>
-    `
-}
-
-// 辅助函数 根据内容获得容器大小
-function get_container_size(htmlString) {
-    // 创建一个隐藏的容器来渲染用户输入的 HTML
-    const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.visibility = 'hidden';
-    container.style.width = 'auto';
-    container.style.height = 'auto';
-    container.innerHTML = htmlString;
-
-    // 将容器添加到文档中
-    document.body.appendChild(container);
-
-    // 获取容器的宽度和高度
-    const width = container.offsetWidth;
-    const height = container.offsetHeight;
-
-    // 移除临时容器
-    document.body.removeChild(container);
-
-    // 返回宽度和高度
-    return [width, height];
+    
 }
 
 class LayerFunctions {
@@ -374,7 +347,7 @@ class LayerFunctions {
             </div>      
     
             <textarea id="ID-editor">${markdown}</textarea>
-            <button type="button" class="layui-btn" onclick="save_node_content('${node_id}', simplemde.value())">Save</button>
+            <button type="button" class="layui-btn" onclick="graph_functions.save_node_content('${node_id}', simplemde.value())">Save</button>
             <script src="./../js/simplemde.min.js"></script>
             <script>
                 var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });
@@ -434,7 +407,7 @@ class LayerFunctions {
     }
 
 }
-layer_functions = new LayerFunctions();
+let layer_functions = new LayerFunctions();
 
 /*
 // 对非 ASCII 字符编码
@@ -469,36 +442,10 @@ function render_md_content(md) {
         return base.replace(/^<a\s/, '<a target="_blank" rel="noopener noreferrer" ');
     };
 
-    let html_content = get_node_html_with_border(marked.parse(md, {renderer: customRenderer}));
+    let html_content = marked.parse(md, {renderer: customRenderer});
 
     console.log("updating html_content", html_content);
     return html_content;
-}
-
-// 主要函数 保存编辑后的内容
-function save_node_content(node_id, md) {
-    console.log("save_node_content", node_id);
-
-    let html_content = render_md_content(md);
-
-    let size = get_container_size(html_content);
-    console.log("size", size);
-
-    save_graph_state_history();
-
-    graph.updateNodeData([{
-        id: node_id,
-        style: {
-            size: size,
-            innerHTML: `${html_content}`,
-        },
-        data: {
-            markdown: md,
-        }
-    }]);
-
-    graph.render();
-    layer.closeLast();
 }
 
 
@@ -572,7 +519,7 @@ class GraphFunctions {
                     style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
                 }]);
                 //save_graph_state_history();下方函数有一次了
-                save_node_content(text, "");
+                graph_functions.save_node_content(text, "");
             });
         } else {
             let node_id = generate_node_id();
@@ -581,9 +528,66 @@ class GraphFunctions {
                 id: node_id,
                 style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
             }]);
-            save_node_content(node_id, "");
+            graph_functions.save_node_content(node_id, "");
 
         }
+    }
+
+    // 主要函数 保存编辑后的内容
+    save_node_content(node_id, md) {
+        console.log("graph_functions.save_node_content", node_id);
+
+        let html_content = this.#get_node_html_with_border(render_md_content(md));
+
+        let size = this.#get_container_size(html_content);
+        console.log("size", size);
+
+        save_graph_state_history();
+
+        graph.updateNodeData([{
+            id: node_id,
+            style: {
+                size: size,
+                innerHTML: `${html_content}`,
+            },
+            data: {
+                markdown: md,
+            }
+        }]);
+
+        graph.render();
+        layer.closeLast();
+    }
+
+    // 辅助函数 获得有样式的div
+    #get_node_html_with_border(html) {
+        return `
+        <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px">${html}</div>
+        `
+    }
+
+    // 辅助函数 根据内容获得容器大小// 辅助函数 根据内容获得容器大小
+    #get_container_size(htmlString) {
+        // 创建一个隐藏的容器来渲染用户输入的 HTML
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.visibility = 'hidden';
+        container.style.width = 'auto';
+        container.style.height = 'auto';
+        container.innerHTML = htmlString;
+    
+        // 将容器添加到文档中
+        document.body.appendChild(container);
+    
+        // 获取容器的宽度和高度
+        const width = container.offsetWidth;
+        const height = container.offsetHeight;
+    
+        // 移除临时容器
+        document.body.removeChild(container);
+    
+        // 返回宽度和高度
+        return [width, height];
     }
 }
 
