@@ -58,10 +58,10 @@
     <!--工具栏-->
     <div id="ID-toolbar">
         <div class="layui-btn-container">
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="undo();">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="editor_functions.undo();">
                 <i class="layui-icon layui-icon-left"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="redo();">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="editor_functions.redo();">
                 <i class="layui-icon layui-icon-right"></i>
             </button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="console.log(pywebview.api.get_current_file_path());">
@@ -85,7 +85,8 @@
 <script src="./../js/g6.min.js"></script>
 <script src="./../js/layui.js"></script>
 <script src="./../js/marked.min.js"></script>
-<script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+<!--<script src="https://unpkg.com/turndown/dist/turndown.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
 
 <!--脚本-->
 <script src="../js/index.js"></script>

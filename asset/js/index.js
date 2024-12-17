@@ -1,12 +1,14 @@
 const {Graph} = G6;
 
+import { jsPDF } from "jspdf";
 
-let n = 2
-
-function generate_node_id() {
-    n++;
-    return "n" + (n - 1);
-}
+//生成节点id
+const generate_node_id = (function () {
+    let n = 2; // 使用闭包变量
+    return function () {
+        return "n" + n++;
+    };
+})();
 
 // 数据默认值
 const graph_data = {
@@ -34,53 +36,6 @@ const graph_data = {
         target: 'n1'
     }],
 };
-
-// 撤销重做功能
-// 用于记录状态的栈
-const history_stack = []; //undo stack
-const redo_stack = [];
-
-function deepClone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
-
-// 请每次操作时都执行这个来使更改加入历史记录
-function save_graph_state_history() {
-    history_stack.push(deepClone(graph.getData())); // 保存当前的深拷贝
-    console.log("history saved", history_stack);
-}
-
-// 撤销到上一个状态
-function undo() {
-    if (history_stack.length > 0) {
-        redo_stack.push(deepClone(graph.getData()));
-        graph.setData(history_stack.pop()); // 恢复到上一个状态
-        graph.render();
-
-        console.log("Undo performed.");
-        console.log("history stack:", history_stack);
-        console.log("redo stack:", redo_stack);
-    } else {
-        layer.msg('No more history');
-        console.log("No more states to undo.");
-    }
-}
-
-// 重做
-function redo() {
-    if (redo_stack.length > 0) {
-        history_stack.push(deepClone(graph.getData())); // 当前状态存回撤销栈
-        graph.setData(redo_stack.pop());
-        graph.render();
-
-        console.log("Redo performed.");
-        console.log("history stack:", history_stack);
-        console.log("redo stack:", redo_stack);
-    } else {
-        layer.msg('No more history');
-        console.log("No more states to redo.");
-    }
-}
 
 // 初始化图数据 和一些样式
 const graph = new Graph({
@@ -271,30 +226,30 @@ document.addEventListener('mouseup', () => {
 });
 */
 
-function isEmptyRecord(record) {
-    // 首先检查对象是否有任何属性
-    for (const key in record) {
-        // 如果对象有自己的属性（不是从原型链上继承的）
-        if (Object.prototype.hasOwnProperty.call(record, key)) {
-            // 获取该属性的值
-            const value = record[key];
+// function isEmptyRecord(record) {
+//     // 首先检查对象是否有任何属性
+//     for (const key in record) {
+//         // 如果对象有自己的属性（不是从原型链上继承的）
+//         if (Object.prototype.hasOwnProperty.call(record, key)) {
+//             // 获取该属性的值
+//             const value = record[key];
 
-            // 检查值是否是非空字符串或非空数组
-            if (typeof value === 'string' && value.trim() !== '') {
-                // 如果是非空字符串，则对象不为空
-                return false;
-            } else if (Array.isArray(value) && value.length > 0) {
-                // 如果是非空数组，则对象不为空
-                return false;
-            }
-            // 如果值是空字符串、空数组或未定义（尽管类型定义中未包含undefined，但这里为了健壮性还是检查一下）
-            // 则继续检查下一个属性
-        }
-    }
+//             // 检查值是否是非空字符串或非空数组
+//             if (typeof value === 'string' && value.trim() !== '') {
+//                 // 如果是非空字符串，则对象不为空
+//                 return false;
+//             } else if (Array.isArray(value) && value.length > 0) {
+//                 // 如果是非空数组，则对象不为空
+//                 return false;
+//             }
+//             // 如果值是空字符串、空数组或未定义（尽管类型定义中未包含undefined，但这里为了健壮性还是检查一下）
+//             // 则继续检查下一个属性
+//         }
+//     }
 
-    // 如果遍历完所有属性都没有发现非空值，则对象为空
-    return true;
-}
+//     // 如果遍历完所有属性都没有发现非空值，则对象为空
+//     return true;
+// }
 
 class FileFunctions {
     constructor() {
@@ -322,10 +277,68 @@ class FileFunctions {
 let file_functions = new FileFunctions();
 
 class EditorFunctions {
-    constructor() {}
+
+    #history_stack;
+    #redo_stack;
+
+    constructor() {
+        // 撤销重做功能
+        // 用于记录状态的栈
+        this.#history_stack = []; //undo stack
+        this.#redo_stack = [];
+    }
+
+    #deepClone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    // 请每次操作时都执行这个来使更改加入历史记录
+    save_graph_state_history() {
+        this.#history_stack.push(this.#deepClone(graph.getData())); // 保存当前的深拷贝
+        console.log("history saved", this.#history_stack);
+    }
 
     
+
+    // 撤销到上一个状态
+    undo() {
+        if (this.#history_stack.length > 0) {
+            this.#redo_stack.push(this.#deepClone(graph.getData()));
+            graph.setData(this.#history_stack.pop()); // 恢复到上一个状态
+            graph.render();
+
+            console.log("Undo performed.");
+            console.log("history stack:", this.#history_stack);
+            console.log("redo stack:", this.#redo_stack);
+        } else {
+            layer.msg('No more history');
+            console.log("No more states to undo.");
+        }
+    }
+
+    // 重做
+    redo() {
+        if (this.#redo_stack.length > 0) {
+            this.#history_stack.push(this.#deepClone(graph.getData())); // 当前状态存回撤销栈
+            graph.setData(this.#redo_stack.pop());
+            graph.render();
+
+            console.log("Redo performed.");
+            console.log("history stack:", this.#history_stack);
+            console.log("redo stack:", this.#redo_stack);
+        } else {
+            layer.msg('No more history');
+            console.log("No more states to redo.");
+        }
+    }    
+
+    print() {
+        console.log("print");
+        
+    }
 }
+let editor_functions = new EditorFunctions();
+
 
 class LayerFunctions {
     constructor() {}
@@ -370,7 +383,7 @@ class LayerFunctions {
         console.log("open_edit_edge_layer edge_id", edge_id);
         layer.prompt({title: 'Enter label',}, function (text, index) {
                 layer.close(index);
-                save_graph_state_history();
+                editor_functions.save_graph_state_history();
                 graph.updateEdgeData([{id: edge_id, style: {labelText: text}}]);
 
                 graph.render();
@@ -381,7 +394,7 @@ class LayerFunctions {
         console.log("open_edit_combo_layer combo_id", combo_id);
         layer.prompt({title: 'Enter label',}, function (text, index) {
                 layer.close(index);
-                save_graph_state_history();
+                editor_functions.save_graph_state_history();
                 graph.updateComboData([{id: combo_id, style: {labelText: text}}]);
 
                 graph.render();
@@ -394,7 +407,7 @@ class LayerFunctions {
         // 现在combo会把首次输入的标签作为id之后可以改
         layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
             layer.close(index);
-            save_graph_state_history();
+            editor_functions.save_graph_state_history();
             let combo_id = text;
             graph.addComboData([{id: combo_id, type: 'rect', style: {labelText: combo_id}}]);
             console.log("combo_id", combo_id);
@@ -460,7 +473,7 @@ class GraphFunctions {
         let selected_combos = graph.getElementDataByState('combo', 'selected');
         let selected_combo_ids = [];
 
-        save_graph_state_history();
+        editor_functions.save_graph_state_history();
 
         selected_nodes.forEach((item) => {
             selected_node_ids.push(item.id);
@@ -482,20 +495,20 @@ class GraphFunctions {
         selected_edges.forEach((item) => {
             selected_edge_ids.push(item.id);
         });
-        save_graph_state_history();
+        editor_functions.save_graph_state_history();
         graph.removeEdgeData(selected_edge_ids);
 
         graph.render();
     }
 
     delete_node(node_id) {
-        save_graph_state_history();
+        editor_functions.save_graph_state_history();
         graph.removeNodeData([node_id]);
         graph.render();
     }
 
     delete_edge(edge_id) {
-        save_graph_state_history();
+        editor_functions.save_graph_state_history();
         graph.removeEdgeData([edge_id]);
         graph.render();
     }
@@ -518,12 +531,12 @@ class GraphFunctions {
                     id: text,
                     style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
                 }]);
-                //save_graph_state_history();下方函数有一次了
+                //editor_functions.save_graph_state_history();下方函数有一次了
                 graph_functions.save_node_content(text, "");
             });
         } else {
             let node_id = generate_node_id();
-            save_graph_state_history();
+            editor_functions.save_graph_state_history();
             graph.addNodeData([{
                 id: node_id,
                 style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
@@ -542,7 +555,7 @@ class GraphFunctions {
         let size = this.#get_container_size(html_content);
         console.log("size", size);
 
-        save_graph_state_history();
+        editor_functions.save_graph_state_history();
 
         graph.updateNodeData([{
             id: node_id,
@@ -636,7 +649,7 @@ function general_dropdown_menu(operation) {
 function node_dropdown_menu(operation, e) {
     console.log("node_dropdown_menu", operation);
     if (operation === "edit") {
-        // 严谨来说应该在编辑窗口的回调函数里调用save_graph_state_history();
+        // 严谨来说应该在编辑窗口的回调函数里调用editor_functions.save_graph_state_history();
         layer_functions.open_edit_node_layer(e.id);
     } else if (operation === "delete") {
         graph_functions.delete_node(e.id);
@@ -649,7 +662,7 @@ function node_dropdown_menu(operation, e) {
             layer.msg("Please select two nodes");
             return;
         }
-        save_graph_state_history();
+        editor_functions.save_graph_state_history();
         graph.addEdgeData([{source: selected_nodes[0].id, target: selected_nodes[1].id}]);
         graph.render();
     }
@@ -668,7 +681,7 @@ function edge_dropdown_menu(operation, e) {
 function combo_dropdown_menu(operation, e) {
     console.log("combo_dropdown_menu", operation);
     if (operation === "delete") {
-        save_graph_state_history();
+        editor_functions.save_graph_state_history();
         graph.removeComboData([e.id]);
         graph.render();
     } else if (operation === "edit") {
@@ -684,7 +697,7 @@ function canvas_dropdown_menu(operation, e) {
     if (operation === "add_node") {
         graph_functions.add_node();
     } else if (operation === "auto_layout") {
-        //save_graph_state_history();
+        //editor_functions.save_graph_state_history();
         graph.setLayout({type: 'dendrogram', direction: "TB", nodeStep: 40});
         graph.render();
     }
