@@ -1,6 +1,6 @@
 const {Graph} = G6;
 
-import { jsPDF } from "jspdf";
+//import { jsPDF } from "jspdf";
 
 //生成节点id
 const generate_node_id = (function () {
@@ -298,8 +298,6 @@ class EditorFunctions {
         console.log("history saved", this.#history_stack);
     }
 
-    
-
     // 撤销到上一个状态
     undo() {
         if (this.#history_stack.length > 0) {
@@ -332,6 +330,7 @@ class EditorFunctions {
         }
     }    
 
+    // 打印/导出
     print() {
         console.log("print");
         

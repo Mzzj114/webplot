@@ -57,24 +57,37 @@
 
     <!--工具栏-->
     <div id="ID-toolbar">
-        <div class="layui-btn-container">
+        <div class="layui-btn-container" style="margin: 5px 10px;">
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="editor_functions.undo();">
                 <i class="layui-icon layui-icon-left"></i>
             </button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="editor_functions.redo();">
                 <i class="layui-icon layui-icon-right"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="console.log(pywebview.api.get_current_file_path());">
-                <i class="layui-icon layui-icon-edit"></i>
-            </button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.print();">
                 <i class="layui-icon layui-icon-print"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary">
-                <i class="layui-icon layui-icon-share"></i>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.print();">
+                <i class="layui-icon layui-icon-export"></i>
             </button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.add_node();">
+                <i class="layui-icon layui-icon-add-1"></i>
+            </button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.combo_selected();">
+                <i class="layui-icon layui-icon-layer"></i>
+            </button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.delete_selected()">
+                <i class="layui-icon layui-icon-delete"></i>
+            </button>
+            <div style="float: right">
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="console.log('Settings')">
+                    <i class="layui-icon layui-icon-set"></i>
+                </button>
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.open('https://github.com/Mzzj114/webplot', '_blank')">
+                    <i class="layui-icon layui-icon-github"></i>
+                </button>
+            </div>
         </div>
-
     </div>
 
     <!--画布-->
