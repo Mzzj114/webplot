@@ -20,7 +20,7 @@
                 <a href="javascript:;">File</a>
                 <dl class="layui-nav-child">
                     <dd><a href="javascript:pywebview.api.open_file();"><i class="layui-icon layui-icon-file"></i> Open local file</a></dd>
-                    <dd><a href="javascript:file_functions.import_data_from_web();">Import from web</a></dd>
+                    <dd><a href="javascript:editor_functions.import_data_from_web();">Import from web</a></dd>
                     <dd><a href="javascript:pywebview.api.save_file();">Save file</a></dd>
                     <dd><a href="javascript:pywebview.api.save_file_as();">Save file as</a></dd>
                     <dd><a href="javascript:window.print();">Print</a></dd>
@@ -80,7 +80,7 @@
                 <i class="layui-icon layui-icon-delete"></i>
             </button>
             <div style="float: right">
-                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="console.log('Settings')">
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="app_functions.open_settings();">
                     <i class="layui-icon layui-icon-set"></i>
                 </button>
                 <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.open('https://github.com/Mzzj114/webplot', '_blank')">

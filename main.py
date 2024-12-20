@@ -54,7 +54,7 @@ class JSApi:
         with open(file_path, 'r') as f:
             try:
                 content = f.read()
-                main_window.evaluate_js(f'content = {content}; file_functions.set_file_content(content);')
+                main_window.evaluate_js(f'content = {content}; editor_functions.set_file_content(content);')
             except Exception as e:
                 print(e)
                 main_window.evaluate_js(f"alert('Error occurred when opening file');")

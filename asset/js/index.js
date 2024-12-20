@@ -251,30 +251,6 @@ document.addEventListener('mouseup', () => {
 //     return true;
 // }
 
-class FileFunctions {
-    constructor() {
-    }
-
-    // 主要函数 获取文件内容
-    set_file_content(content) {
-        // graph the json content
-        console.log("file_functions.set_file_content");
-        graph.setData(content);
-        graph.render();
-    }
-
-    // 这个功能目前没什么用，因为现在的graph是纯为innerHtml设计的，别的图都用不了
-    import_data_from_web() {
-        layer.prompt({title: 'Enter data url',}, function (text, index) {
-            layer.close(index);
-            fetch(text).then((res) => res.json()).then((data) => {
-                graph.setData(data);
-                graph.render();
-            });
-        });
-    }
-}
-let file_functions = new FileFunctions();
 
 class EditorFunctions {
 
@@ -335,11 +311,30 @@ class EditorFunctions {
         console.log("print");
         
     }
+
+    // 主要函数 获取文件内容
+    set_file_content(content) {
+        // graph the json content
+        console.log("editor_functions.set_file_content");
+        graph.setData(content);
+        graph.render();
+    }
+
+    // 这个功能目前没什么用，因为现在的graph是纯为innerHtml设计的，别的图都用不了
+    import_data_from_web() {
+        layer.prompt({title: 'Enter data url',}, function (text, index) {
+            layer.close(index);
+            fetch(text).then((res) => res.json()).then((data) => {
+                graph.setData(data);
+                graph.render();
+            });
+        });
+    }
 }
 let editor_functions = new EditorFunctions();
 
 
-class LayerFunctions {
+class AppFunctions {
     constructor() {}
 
     open_edit_node_layer(node_id) {
@@ -418,8 +413,27 @@ class LayerFunctions {
         });
     }
 
-}
-let layer_functions = new LayerFunctions();
+    open_settings(){
+        layer.tab({
+            area: ['600px', '300px'],
+            shade: 0.2,
+            //skin: 'layui-layer-molv',
+            tab: [{
+              title: 'Title 1', 
+              content: '<div style="padding: 16px;">tabs content 111</div>'
+            }, {
+              title: 'Title 2', 
+              content: '<div style="padding: 16px;">tabs content 222</div>'
+            }, {
+              title: 'Title 3', 
+              content: '<div style="padding: 16px;">tabs content 333</div>'
+            }],
+            shadeClose: true
+          });
+    }
+
+} // AppFunctions
+let app_functions = new AppFunctions();
 
 /*
 // 对非 ASCII 字符编码
@@ -519,7 +533,7 @@ class GraphFunctions {
         selected_nodes.forEach(node => {
             node_ids.push(node.id);
         });
-        layer_functions.open_add_combo_layer(node_ids);
+        app_functions.open_add_combo_layer(node_ids);
     }
 
     add_node(){
@@ -649,7 +663,7 @@ function node_dropdown_menu(operation, e) {
     console.log("node_dropdown_menu", operation);
     if (operation === "edit") {
         // 严谨来说应该在编辑窗口的回调函数里调用editor_functions.save_graph_state_history();
-        layer_functions.open_edit_node_layer(e.id);
+        app_functions.open_edit_node_layer(e.id);
     } else if (operation === "delete") {
         graph_functions.delete_node(e.id);
     } else if (operation === "add_combo") {
@@ -673,7 +687,7 @@ function edge_dropdown_menu(operation, e) {
     if (operation === "delete") {
         graph_functions.delete_edge(e.id);
     } else if (operation === "edit") {
-        layer_functions.open_edit_edge_layer(e.id);
+        app_functions.open_edit_edge_layer(e.id);
     }
 }
 
@@ -684,7 +698,7 @@ function combo_dropdown_menu(operation, e) {
         graph.removeComboData([e.id]);
         graph.render();
     } else if (operation === "edit") {
-        layer_functions.open_edit_combo_layer(e.id);
+        app_functions.open_edit_combo_layer(e.id);
     }
 }
 
