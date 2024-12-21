@@ -1,5 +1,5 @@
 {
-    "General": {"doAutoGenerateId": "true"},
+    "General": {"doManualInputId": "false"},
     "KeyBoardShortCuts": {
         "Ctrl" : {
 
