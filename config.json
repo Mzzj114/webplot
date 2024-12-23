@@ -1,18 +1,1 @@
-{
-    "General": {"doManualInputId": "false"},
-    "KeyBoardShortCuts": {
-        "Ctrl" : {
-
-        },
-        "Alt" : {
-
-        },
-        "Shift" : {
-
-        },
-        "None" : {
-            "A" : "add_node",
-            "Backspace" : "delete_selected"
-        }
-    }
-}
+{"doManualInputId": "false"}

@@ -1,4 +1,4 @@
-const { Graph } = G6;
+const {Graph} = G6;
 
 //import { jsPDF } from "jspdf";
 
@@ -21,15 +21,15 @@ const graph_data = {
             innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 1</p></div>',
         }
     },
-    {
-        id: 'n1',
-        style: {
-            x: 400,
-            y: 200,
-            size: [100, 58],
-            innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 2</p></div>',
-        }
-    },
+        {
+            id: 'n1',
+            style: {
+                x: 400,
+                y: 200,
+                size: [100, 58],
+                innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 2</p></div>',
+            }
+        },
     ],
     edges: [{
         source: 'n0',
@@ -54,7 +54,7 @@ const graph = new Graph({
                 halo: false, //有显示bug
                 badge: true,
                 badges: [
-                    { text: "√", placement: "top-right" }
+                    {text: "√", placement: "top-right"}
                 ],
                 badgeFontSize: 12,
             },
@@ -144,33 +144,33 @@ const graph = new Graph({
                 if (e.targetType === "node") {
                     let selected_nodes = graph.getElementDataByState('node', 'selected');
 
-                    items.push({ name: 'Edit node', value: "edit" });
-                    items.push({ name: 'Delete node', value: "delete" });
+                    items.push({name: 'Edit node', value: "edit"});
+                    items.push({name: 'Delete node', value: "delete"});
 
                     if (selected_nodes.length > 1) {
-                        items.push({ name: 'Create combo', value: "add_combo" });
+                        items.push({name: 'Create combo', value: "add_combo"});
                     }
                     if (selected_nodes.length === 2) {
-                        items.push({ name: 'Create edge', value: "create_edge" });
+                        items.push({name: 'Create edge', value: "create_edge"});
                     }
 
                 } else if (e.targetType === "edge") {
-                    items.push({ name: 'Edit label', value: "edit" });
-                    items.push({ name: 'Remove edge', value: "delete" });
+                    items.push({name: 'Edit label', value: "edit"});
+                    items.push({name: 'Remove edge', value: "delete"});
 
                 } else if (e.targetType === "combo") {
-                    items.push({ name: 'Edit label', value: "edit" });
-                    items.push({ name: 'Remove combo', value: "delete" });
+                    items.push({name: 'Edit label', value: "edit"});
+                    items.push({name: 'Remove combo', value: "delete"});
 
                 } else if (e.targetType === "canvas") {
-                    items.push({ name: 'Add node', value: "add_node" });
-                    items.push({ name: 'Auto layout', value: "auto_layout" });
+                    items.push({name: 'Add node', value: "add_node"});
+                    items.push({name: 'Auto layout', value: "auto_layout"});
                 }
                 if (graph.getElementDataByState('node', 'selected').length > 0) {
-                    items.push({ name: 'Remove selection', value: "delete_selected" });
+                    items.push({name: 'Remove selection', value: "delete_selected"});
                 }
                 if (graph.getElementDataByState('edge', 'selected').length > 0) {
-                    items.push({ name: 'Remove all edges', value: "delete_selected_edges" });
+                    items.push({name: 'Remove all edges', value: "delete_selected_edges"});
                 }
 
                 items.sort((a, b) => {
@@ -322,7 +322,7 @@ class EditorFunctions {
 
     // 这个功能目前没什么用，因为现在的graph是纯为innerHtml设计的，别的图都用不了
     import_data_from_web() {
-        layer.prompt({ title: 'Enter data url', }, function (text, index) {
+        layer.prompt({title: 'Enter data url',}, function (text, index) {
             layer.close(index);
             fetch(text).then((res) => res.json()).then((data) => {
                 graph.setData(data);
@@ -331,11 +331,13 @@ class EditorFunctions {
         });
     }
 }
+
 let editor_functions = new EditorFunctions();
 
 
 class AppFunctions {
-    constructor() { }
+    constructor() {
+    }
 
     open_edit_node_layer(node_id) {
         console.log("edit_node_layer", node_id);
@@ -375,10 +377,10 @@ class AppFunctions {
 
     open_edit_edge_layer(edge_id) {
         console.log("open_edit_edge_layer edge_id", edge_id);
-        layer.prompt({ title: 'Enter label', }, function (text, index) {
+        layer.prompt({title: 'Enter label',}, function (text, index) {
             layer.close(index);
             editor_functions.save_graph_state_history();
-            graph.updateEdgeData([{ id: edge_id, style: { labelText: text } }]);
+            graph.updateEdgeData([{id: edge_id, style: {labelText: text}}]);
 
             graph.render();
         });
@@ -386,10 +388,10 @@ class AppFunctions {
 
     open_edit_combo_layer(combo_id) {
         console.log("open_edit_combo_layer combo_id", combo_id);
-        layer.prompt({ title: 'Enter label', }, function (text, index) {
+        layer.prompt({title: 'Enter label',}, function (text, index) {
             layer.close(index);
             editor_functions.save_graph_state_history();
-            graph.updateComboData([{ id: combo_id, style: { labelText: text } }]);
+            graph.updateComboData([{id: combo_id, style: {labelText: text}}]);
 
             graph.render();
         });
@@ -399,15 +401,15 @@ class AppFunctions {
     open_add_combo_layer(ids) {
         console.log("ids", ids);
         // 现在combo会把首次输入的标签作为id之后可以改
-        layer.prompt({ title: 'Enter Combo Name' }, function (text, index) {
+        layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
             layer.close(index);
             editor_functions.save_graph_state_history();
             let combo_id = text;
-            graph.addComboData([{ id: combo_id, type: 'rect', style: { labelText: combo_id } }]);
+            graph.addComboData([{id: combo_id, type: 'rect', style: {labelText: combo_id}}]);
             console.log("combo_id", combo_id);
             ids.forEach(node_id => {
                 console.log('This node should be selected', node_id);
-                graph.updateNodeData([{ id: node_id, combo: combo_id }]);
+                graph.updateNodeData([{id: node_id, combo: combo_id}]);
             });
             graph.render();
         });
@@ -415,30 +417,25 @@ class AppFunctions {
 
     #get_settings_layer() {
         return `
-        <div class="layui-tab layui-tab-brief">
-            <ul class="layui-tab-title">
-                <li class="layui-this">General</li>
-                <li>标签2</li>
-                <li>标签3</li>
-                <li>标签4</li>
-                <li>标签5</li>
-            </ul>
-            <div class="layui-tab-content">
-                <div class="layui-tab-item layui-show">
-                    <div class="layui-input-group">
-                        <div class="layui-input-prefix">Manual Input id</div>
-                        <input type="checkbox" name="BBB" title="ON|OFF" lay-skin="switch" checked> 
-                    </div>
-                </div>
-                <div class="layui-tab-item">内容-2</div>
-                <div class="layui-tab-item">内容-3</div>
-                <div class="layui-tab-item">内容-4</div>
-                <div class="layui-tab-item">内容-5</div>
+        <div class="layui-container" style="margin-top: 10px;">
+        <form class="layui-form" action="">        
+            <div class="layui-tab layui-tab-brief">
+              <ul class="layui-tab-title">
+                <li class="layui-this">Settings</li>
+                <li>Keyboard Shortcuts</li>
+              </ul>
+              <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show"><textarea id="ID-config" name="config" placeholder="conf" class="layui-textarea"></textarea></div>
+                <div class="layui-tab-item"><textarea id="ID-key" name="keyboard_shortcuts" placeholder="cuts" class="layui-textarea"></textarea></div>
+              </div>
             </div>
-        </div>
-        <div class="layui-btn-container">
-            <button type="button" class="layui-btn">Save&Apply</button> 
-            <button type="button" class="layui-btn layui-btn-primary">Cancel</button> 
+            <hr>
+            <div class="layui-form-item" style="float: right; margin: 10px;">
+                <button type="submit" class="layui-btn" lay-submit lay-filter="FILTER-Settings">Apply</button>
+                <button type="reset" class="layui-btn layui-btn-primary">Reset</button>
+                <button class="layui-btn layui-btn-primary">Cancel</button>
+            </div>
+        </form>
         </div>
         `
     }
@@ -454,6 +451,51 @@ class AppFunctions {
             shadeClose: true, // 点击遮罩区域，关闭弹层
             anim: 0, // 0-6 的动画形式，-1 不开启
             content: this.#get_settings_layer(),
+            success: function () {
+                // 对弹层中的表单进行初始化渲染
+                const form = layui.form;
+
+                pywebview.api.get_config().then((conf)=>{
+                    if (conf) {
+                        let textarea = document.getElementById("ID-config");
+                        textarea.value = JSON.stringify(conf);
+                    }
+                }, (error)=>{
+                    console.log("error", error);
+                })
+
+                pywebview.api.get_keyboard_shortcuts().then((cuts)=>{
+                    if (cuts) {
+                        let textarea = document.getElementById("ID-key");
+                        textarea.value = JSON.stringify(cuts);
+                    }
+                }, (error)=>{
+                    console.log("error", error);
+                })
+
+                form.render();
+
+                // 表单提交事件
+                form.on('submit(FILTER-Settings)', function (data) {
+                    console.log("form submitted");
+                    console.log("data", data);
+
+
+                    const _config = JSON.parse(data.field.config); // 获取表单字段值
+                    const _keyboard_shortcuts = JSON.parse(data.field.keyboard_shortcuts);
+
+                    let config_string = JSON.stringify(_config);
+                    let keyboard_shortcuts_string = JSON.stringify(_keyboard_shortcuts);
+
+                    pywebview.api.set_config(_config)
+                    pywebview.api.set_keyboard_shortcuts(_keyboard_shortcuts)
+
+                    pywebview.api.get_config().then((conf)=>{config = conf})
+                    pywebview.api.get_keyboard_shortcuts().then((cuts)=>{keyboard_shortcuts = cuts})
+
+                    return false; // 阻止默认 form 跳转
+                }); // 表单提交事件
+            },
         });
     }
 
@@ -478,7 +520,7 @@ function render_md_content(md) {
     const customRenderer = new marked.Renderer();
 
     //覆盖默认的 image 方法 此处函数的参数是一个img对象，需要用{}解包
-    customRenderer.image = function ({ href, text }) {
+    customRenderer.image = function ({href, text}) {
         console.log("img", href, text);
         // 构造包含 CSS 类的 <img> 标签
         // 如果需要，可以添加一个包裹 <img> 标签的 <div> 或其他元素，并添加样式
@@ -493,7 +535,7 @@ function render_md_content(md) {
         return base.replace(/^<a\s/, '<a target="_blank" rel="noopener noreferrer" ');
     };
 
-    let html_content = marked.parse(md, { renderer: customRenderer });
+    let html_content = marked.parse(md, {renderer: customRenderer});
 
     console.log("updating html_content", html_content);
     return html_content;
@@ -502,7 +544,8 @@ function render_md_content(md) {
 
 // 功能
 class GraphFunctions {
-    constructor() { }
+    constructor() {
+    }
 
     delete_selected() {
         console.log("delete_selected");
@@ -562,12 +605,14 @@ class GraphFunctions {
     }
 
     add_node() {
-        if (config["General"]["doManualInputId"] === true) {
-            layer.prompt({ title: 'Enter node id', }, function (text, index) {
+        console.log("add_node");
+
+        if (config["doManualInputId"] === "true") {
+            layer.prompt({title: 'Enter node id',}, function (text, index) {
                 layer.close(index);
                 graph.addNodeData([{
                     id: text,
-                    style: { x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: "" }
+                    style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
                 }]);
                 //editor_functions.save_graph_state_history();下方函数有一次了
                 graph_functions.save_node_content(text, "");
@@ -577,7 +622,7 @@ class GraphFunctions {
             editor_functions.save_graph_state_history();
             graph.addNodeData([{
                 id: node_id,
-                style: { x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: "" }
+                style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
             }]);
             graph_functions.save_node_content(node_id, "");
 
@@ -701,7 +746,7 @@ function node_dropdown_menu(operation, e) {
             return;
         }
         editor_functions.save_graph_state_history();
-        graph.addEdgeData([{ source: selected_nodes[0].id, target: selected_nodes[1].id }]);
+        graph.addEdgeData([{source: selected_nodes[0].id, target: selected_nodes[1].id}]);
         graph.render();
     }
 
@@ -736,13 +781,13 @@ function canvas_dropdown_menu(operation, e) {
         graph_functions.add_node();
     } else if (operation === "auto_layout") {
         //editor_functions.save_graph_state_history();
-        graph.setLayout({ type: 'dendrogram', direction: "TB", nodeStep: 40 });
+        graph.setLayout({type: 'dendrogram', direction: "TB", nodeStep: 40});
         graph.render();
     }
 }
 
 // 键盘快捷键处理
-document.addEventListener("keydown", function (e) {
+function on_key_down(e) {
     console.log("keydown", e.key);
     let selected_nodes = graph.getElementDataByState("node", "selected");
     let IsSelectedNode = selected_nodes.length > 0;
@@ -755,7 +800,7 @@ document.addEventListener("keydown", function (e) {
 
     } else { //没有按下shift或ctrl
         // 现有一映射表maps，一值e.key，如果在maps的值里找不到key，那么返回，如果找到了，那么根据键进行操作
-        let maps = config.KeyBoardShortCuts.None;
+        let maps = keyboard_shortcuts["None"];
         console.log("maps", maps);
         // 检查映射表中是否有这个键
         if (maps.hasOwnProperty(e.key)) {
@@ -777,18 +822,24 @@ document.addEventListener("keydown", function (e) {
 
     // 什么都没有就按原来方法处理事件
     return false;
-});
+}
+document.addEventListener("keydown", on_key_down);
 
 // main
 console.log("rendering graph");
 graph.render();
 
-let config = {}
+let config = {};
+let keyboard_shortcuts = {};
 // 有点逆天，但是pywebview的接口要等一会才会加载出来
 // 被python调用
 function on_pywebview_ready() {
     pywebview.api.get_config().then((conf) => {
         console.log("config", conf);
         config = conf;
+    })
+    pywebview.api.get_keyboard_shortcuts().then((shortcuts) => {
+        console.log("shortcuts", shortcuts);
+        keyboard_shortcuts = shortcuts;
     })
 }

@@ -31,16 +31,39 @@ class JSApi:
         self.current_file_path = ""
         with open('config.json', 'r') as jsonfile:
             self.config = json.load(jsonfile)
+            print("config:")
             print(self.config)
 
+        with open('keyboard_shortcuts.json', 'r') as jsonfile:
+            self.keyboard_shortcuts = json.load(jsonfile)
+            print("keyboard_shortcuts:")
+            print(self.keyboard_shortcuts)
+
     def get_config(self):
+        print("get_config")
+        print(self.config)
         return self.config
 
     def set_config(self, config):
+        print("set_config")
+        print(config)
         self.config = config
         with open('config.json', 'w') as jsonfile:
-            json.dump(self.config, jsonfile)
-        main_window.evaluate_js('config = pywebview.api.get_config();')
+            json.dump(self.config, jsonfile) # 这个方法会加入奇怪的转义符，直接write就行
+            # jsonfile.write(self.config)
+
+    def get_keyboard_shortcuts(self):
+        print("get_keyboard_shortcuts")
+        print(self.keyboard_shortcuts)
+        return self.keyboard_shortcuts
+
+    def set_keyboard_shortcuts(self, keyboard_shortcuts):
+        print("set_keyboard_shortcuts")
+        print(keyboard_shortcuts)
+        self.keyboard_shortcuts = keyboard_shortcuts
+        with open('keyboard_shortcuts.json', 'w') as jsonfile:
+            json.dump(self.keyboard_shortcuts, jsonfile)
+            # jsonfile.write(self.keyboard_shortcuts)
 
     def open_file(self):
         # 选择文件
