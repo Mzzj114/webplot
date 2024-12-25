@@ -21,35 +21,33 @@
                 <dl class="layui-nav-child">
                     <dd><a href="javascript:pywebview.api.open_file();"><i class="layui-icon layui-icon-file"></i> Open local file</a></dd>
                     <dd><a href="javascript:editor_functions.import_data_from_web();">Import from web</a></dd>
+                    <hr>
                     <dd><a href="javascript:pywebview.api.save_file();">Save file</a></dd>
                     <dd><a href="javascript:pywebview.api.save_file_as();">Save file as</a></dd>
+                    <hr>
                     <dd><a href="javascript:window.print();">Print</a></dd>
                     <!--<dd><a href="javascript:pywebview.api.window_close();">关闭</a></dd>-->
                 </dl>
             </li>
             <li class="layui-nav-item">
-                <a href="javascript:;">常规</a>
-            </li>
-            <li class="layui-nav-item"><a href="">导航</a></li>
-            <li class="layui-nav-item">
-                <a href="javascript:;">子级</a>
+                <a href="javascript:;">Edit</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="">菜单1</a></dd>
-                    <dd><a href="">菜单2</a></dd>
-                    <dd><a href="">菜单3</a></dd>
+                    <dd><a href="javascript:editor_functions.undo();">Undo</a></dd>
+                    <dd><a href="javascript:editor_functions.redo();">Redo</a></dd>
+                    <hr>
+                    <dd><a href="javascript:editor_functions.copy();">Copy</a></dd>
+                    <dd><a href="javascript:editor_functions.cut();">Cut</a></dd>
+                    <dd><a href="javascript:editor_functions.paste();">Paste</a></dd>
+                    <hr>
+                    <dd><a href="javascript:;">Find</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">
-                <a href="javascript:;">选项</a>
+                <a href="javascript:;">Tool</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="">选项1</a></dd>
-                    <dd class="layui-this"><a href="">选项2</a></dd>
-                    <dd><a href="">选项3</a></dd>
+                    <dd><a href="javascript:app_functions.content_count();"><i class="layui-icon layui-icon-eye"></i> Content count</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item" ><a href="">演示</a></li>
-
-
         </ul>
     </div>
 
@@ -70,8 +68,8 @@
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.print();">
                 <i class="layui-icon layui-icon-export"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.add_node();">
-                <i class="layui-icon layui-icon-add-1"></i>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.add_node(graph.getCanvasCenter().x,graph.getCanvasCenter.y);">
+                <i class="layui-icon layui-icon-add-circle"></i>
             </button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.combo_selected();">
                 <i class="layui-icon layui-icon-layer"></i>
@@ -80,12 +78,25 @@
                 <i class="layui-icon layui-icon-delete"></i>
             </button>
             <div style="float: right">
-                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="app_functions.open_settings();">
-                    <i class="layui-icon layui-icon-set"></i>
-                </button>
                 <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.open('https://github.com/Mzzj114/webplot', '_blank')">
                     <i class="layui-icon layui-icon-github"></i>
                 </button>
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="app_functions.open_settings();">
+                    <i class="layui-icon layui-icon-set"></i>
+                </button>
+            </div>
+            <div style="float: right; margin-right: 15%">
+                <div class="layui-btn-group">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph.zoomBy(0.5);">
+                        <i class="layui-icon layui-icon-subtraction"></i>
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph.zoomBy(2);">
+                        <i class="layui-icon layui-icon-addition"></i>
+                    </button>
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph.fitCenter().then(()=>{graph.zoomTo(1);});">
+                        <i class="layui-icon layui-icon-circle-dot"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

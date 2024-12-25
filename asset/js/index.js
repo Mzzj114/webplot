@@ -144,6 +144,7 @@ const graph = new Graph({
                 if (e.targetType === "node") {
                     let selected_nodes = graph.getElementDataByState('node', 'selected');
 
+                    items.push({name: 'Center node', value: "center_node"});
                     items.push({name: 'Edit node', value: "edit"});
                     items.push({name: 'Delete node', value: "delete"});
 
@@ -257,6 +258,8 @@ class EditorFunctions {
     #history_stack;
     #redo_stack;
 
+    #clipboard;
+
     constructor() {
         // 撤销重做功能
         // 用于记录状态的栈
@@ -304,6 +307,52 @@ class EditorFunctions {
             layer.msg('No more history');
             console.log("No more states to redo.");
         }
+    }
+
+    copy(ids = null){
+        if (ids === null) {
+            console.log("copy selection");
+
+            this.#clipboard = {
+                nodes: graph.getElementDataByState('node', 'selected'),
+                edges: graph.getElementDataByState('edge', 'selected'),
+                combos: graph.getElementDataByState('combo', 'selected'),
+            }
+
+            console.log("clipboard", this.#clipboard);
+            return;
+        }
+        console.log("copy");
+        this.#clipboard = graph.getElementData(ids);
+        console.log("clipboard", this.#clipboard);
+    }
+
+    cut(ids = null) {
+        if (ids === null) {
+            console.log("cut selection");
+
+            this.#clipboard = {
+                nodes: graph.getElementDataByState('node', 'selected'),
+                edges: graph.getElementDataByState('edge', 'selected'),
+                combos: graph.getElementDataByState('combo', 'selected'),
+            }
+
+            graph_functions.delete_selected();
+            console.log("clipboard", this.#clipboard);
+            return;
+        }
+        console.log("cut");
+        this.#clipboard = graph.getElementData(ids);
+        graph.removeData(ids);
+        console.log("clipboard", this.#clipboard);
+    }
+
+    paste() {
+        console.log("paste");
+        //请先对clipboard里的data处理一下，使得粘贴的时候位置稍微偏移一点或者移动到鼠标
+        this.save_graph_state_history();
+        graph.addData(this.#clipboard);
+        graph.render();
     }
 
     // 打印/导出
@@ -499,6 +548,30 @@ class AppFunctions {
         });
     }
 
+    content_count() {
+        console.log("content_count");
+        let node_count = graph.getNodeData().length;
+        let edge_count = graph.getEdgeData().length;
+        let combo_count = graph.getComboData().length;
+        let data_count = node_count + edge_count + combo_count;
+        // 使用 layer 弹窗
+        layer.open({
+            title: 'Content Count',
+            content: `
+                <div>
+                    <p>Node Count: ${node_count}</p>
+                    <p>Edge Count: ${edge_count}</p>
+                    <p>Combo Count: ${combo_count}</p>
+                    <p>Data Count: ${data_count}</p>
+                </div>
+            `,
+            area: ['250px', '300px'],
+            btn: ['OK'],
+            yes: function (index) {
+                layer.close(index);
+            }
+        })
+    }
 } // AppFunctions
 let app_functions = new AppFunctions();
 
@@ -604,7 +677,7 @@ class GraphFunctions {
         app_functions.open_add_combo_layer(node_ids);
     }
 
-    add_node() {
+    add_node(x, y) {
         console.log("add_node");
 
         if (config["doManualInputId"] === "true") {
@@ -622,7 +695,7 @@ class GraphFunctions {
             editor_functions.save_graph_state_history();
             graph.addNodeData([{
                 id: node_id,
-                style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
+                style: {x: x, y: y, innerHTML: ""}
             }]);
             graph_functions.save_node_content(node_id, "");
 
@@ -736,6 +809,8 @@ function node_dropdown_menu(operation, e) {
         app_functions.open_edit_node_layer(e.id);
     } else if (operation === "delete") {
         graph_functions.delete_node(e.id);
+    } else if (operation === "center_node") {
+        graph.focusElement(e.id);
     } else if (operation === "add_combo") {
         graph_functions.combo_selected();
     } else if (operation === "create_edge") {
@@ -778,7 +853,7 @@ function canvas_dropdown_menu(operation, e) {
     console.log(e);
 
     if (operation === "add_node") {
-        graph_functions.add_node();
+        graph_functions.add_node(context_menu_position[0],context_menu_position[1]-100);
     } else if (operation === "auto_layout") {
         //editor_functions.save_graph_state_history();
         graph.setLayout({type: 'dendrogram', direction: "TB", nodeStep: 40});
@@ -807,7 +882,7 @@ function on_key_down(e) {
             let action = maps[e.key];
             switch (action) {
                 case "add_node":
-                    graph_functions.add_node();
+                    graph_functions.add_node(context_menu_position[0],context_menu_position[1]-100);
                     break;
                 case "delete_selected":
                     graph_functions.delete_selected();
