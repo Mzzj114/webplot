@@ -309,21 +309,28 @@ class EditorFunctions {
         }
     }
 
+    #generate_copy_id = (function () {
+        let n = 0; // 使用闭包变量
+        return function () {
+            return n++;
+        };
+    })();
+
     copy(ids = null){
         if (ids === null) {
             console.log("copy selection");
 
-            this.#clipboard = {
+            this.#clipboard = this.#deepClone( {
                 nodes: graph.getElementDataByState('node', 'selected'),
                 edges: graph.getElementDataByState('edge', 'selected'),
                 combos: graph.getElementDataByState('combo', 'selected'),
-            }
+            });
 
             console.log("clipboard", this.#clipboard);
             return;
         }
         console.log("copy");
-        this.#clipboard = graph.getElementData(ids);
+        this.#clipboard = this.#deepClone(graph.getElementData(ids));
         console.log("clipboard", this.#clipboard);
     }
 
@@ -331,25 +338,54 @@ class EditorFunctions {
         if (ids === null) {
             console.log("cut selection");
 
-            this.#clipboard = {
+            this.#clipboard = this.#deepClone( {
                 nodes: graph.getElementDataByState('node', 'selected'),
                 edges: graph.getElementDataByState('edge', 'selected'),
                 combos: graph.getElementDataByState('combo', 'selected'),
-            }
+            });
 
             graph_functions.delete_selected();
             console.log("clipboard", this.#clipboard);
             return;
         }
         console.log("cut");
-        this.#clipboard = graph.getElementData(ids);
+        this.#clipboard = this.#deepClone(graph.getElementData(ids));
         graph.removeData(ids);
         console.log("clipboard", this.#clipboard);
     }
 
     paste() {
         console.log("paste");
-        //请先对clipboard里的data处理一下，使得粘贴的时候位置稍微偏移一点或者移动到鼠标
+        if (!this.#clipboard) {
+            layer.msg('No clipboard data');
+            console.log("No clipboard data.");
+            return;
+        }
+
+        //此处大费周章是为了避免id重复，更新id的同时要保持原有的连接结构
+        let copy_id = this.#generate_copy_id();
+        this.#clipboard.nodes.forEach(node => {
+            node.id += copy_id;
+            if (node.combo && this.#clipboard.combos.some(item => item.id === node.combo)){
+                node.combo += copy_id; //node的这个属性指所属的combo id
+            }
+
+            node.style.x += 10;
+            node.style.y += 10;
+        });
+        this.#clipboard.edges.forEach(edge => {
+            edge.id += copy_id;
+
+            if (this.#clipboard.nodes.some(item => item.id === edge.source+copy_id)){edge.source += copy_id;}
+            if (this.#clipboard.nodes.some(item => item.id === edge.target+copy_id)){edge.target += copy_id;}
+
+        });
+        this.#clipboard.combos.forEach(combo => {
+            combo.id += copy_id;
+        });
+
+        console.log("adding data");
+        console.log("clipboard", this.#clipboard);
         this.save_graph_state_history();
         graph.addData(this.#clipboard);
         graph.render();
