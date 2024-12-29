@@ -2,14 +2,6 @@ const {Graph} = G6;
 
 //import { jsPDF } from "jspdf";
 
-//生成节点id
-const generate_node_id = (function () {
-    let n = 2; // 使用闭包变量
-    return function () {
-        return "n" + n++;
-    };
-})();
-
 // 数据默认值
 const graph_data = {
     nodes: [{
@@ -415,6 +407,18 @@ class EditorFunctions {
             });
         });
     }
+
+    select_all() {
+        graph.getData().nodes.forEach(node => {
+            graph.setElementState(node.id, 'selected', false);
+        });
+        graph.getData().edges.forEach(edge => {
+            graph.setElementState(edge.id, 'selected', false);
+        });
+        graph.getData().combos.forEach(combo => {
+            graph.setElementState(combo.id, 'selected', false);
+        });
+    }
 }
 
 let editor_functions = new EditorFunctions();
@@ -518,7 +522,7 @@ class AppFunctions {
             <div class="layui-form-item" style="float: right; margin: 10px;">
                 <button type="submit" class="layui-btn" lay-submit lay-filter="FILTER-Settings">Apply</button>
                 <button type="reset" class="layui-btn layui-btn-primary">Reset</button>
-                <button class="layui-btn layui-btn-primary">Cancel</button>
+                <button class="layui-btn layui-btn-primary" onclick="layer.closeLast()">Cancel</button>
             </div>
         </form>
         </div>
@@ -536,7 +540,7 @@ class AppFunctions {
             shadeClose: true, // 点击遮罩区域，关闭弹层
             anim: 0, // 0-6 的动画形式，-1 不开启
             content: this.#get_settings_layer(),
-            success: function () {
+            success: function (index) {
                 // 对弹层中的表单进行初始化渲染
                 const form = layui.form;
 
@@ -578,8 +582,10 @@ class AppFunctions {
                     pywebview.api.get_config().then((conf)=>{config = conf})
                     pywebview.api.get_keyboard_shortcuts().then((cuts)=>{keyboard_shortcuts = cuts})
 
+                    layer.close(index);
                     return false; // 阻止默认 form 跳转
                 }); // 表单提交事件
+
             },
         });
     }
@@ -598,7 +604,8 @@ class AppFunctions {
                     <p>Node Count: ${node_count}</p>
                     <p>Edge Count: ${edge_count}</p>
                     <p>Combo Count: ${combo_count}</p>
-                    <p>Data Count: ${data_count}</p>
+                    <hr>
+                    <p>${data_count} elements in total</p>
                 </div>
             `,
             area: ['250px', '300px'],
@@ -713,6 +720,13 @@ class GraphFunctions {
         app_functions.open_add_combo_layer(node_ids);
     }
 
+    #generate_node_id = (function () {
+        let n = 2; // 使用闭包变量
+        return function () {
+            return "n" + n++;
+        };
+    })();
+
     add_node(x, y) {
         console.log("add_node");
 
@@ -721,13 +735,13 @@ class GraphFunctions {
                 layer.close(index);
                 graph.addNodeData([{
                     id: text,
-                    style: {x: context_menu_position[0], y: context_menu_position[1] - 100, innerHTML: ""}
+                    style: {x: x, y: y, innerHTML: ""}
                 }]);
                 //editor_functions.save_graph_state_history();下方函数有一次了
                 graph_functions.save_node_content(text, "");
             });
         } else {
-            let node_id = generate_node_id();
+            let node_id = this.#generate_node_id();
             editor_functions.save_graph_state_history();
             graph.addNodeData([{
                 id: node_id,
@@ -889,7 +903,7 @@ function canvas_dropdown_menu(operation, e) {
     console.log(e);
 
     if (operation === "add_node") {
-        graph_functions.add_node(context_menu_position[0],context_menu_position[1]-100);
+        graph_functions.add_node(graph.getCanvasCenter().x,graph.getCanvasCenter.y);
     } else if (operation === "auto_layout") {
         //editor_functions.save_graph_state_history();
         graph.setLayout({type: 'dendrogram', direction: "TB", nodeStep: 40});
@@ -904,37 +918,74 @@ function on_key_down(e) {
     let IsSelectedNode = selected_nodes.length > 0;
 
     if (e.ctrlKey) {
-
-    } else if (e.altKey) {
-
-    } else if (e.shiftKey) {
-
-    } else { //没有按下shift或ctrl
-        // 现有一映射表maps，一值e.key，如果在maps的值里找不到key，那么返回，如果找到了，那么根据键进行操作
-        let maps = keyboard_shortcuts["None"];
-        console.log("maps", maps);
-        // 检查映射表中是否有这个键
+        let maps = keyboard_shortcuts["Ctrl"];
         if (maps.hasOwnProperty(e.key)) {
             let action = maps[e.key];
-            switch (action) {
-                case "add_node":
-                    graph_functions.add_node(context_menu_position[0],context_menu_position[1]-100);
-                    break;
-                case "delete_selected":
-                    graph_functions.delete_selected();
-                    break;
-                default:
-                    return false;
-            }
-        } else { // 没有找到键
-            return false;
+            return shortcut_actions(action);
+        }
+    } else if (e.altKey) {
+        let maps = keyboard_shortcuts["Alt"];
+        if (maps.hasOwnProperty(e.key)) {
+            let action = maps[e.key];
+            return shortcut_actions(action);
+        }
+    } else if (e.shiftKey) {
+        let maps = keyboard_shortcuts["Shift"];
+        if (maps.hasOwnProperty(e.key)) {
+            let action = maps[e.key];
+            return shortcut_actions(action);
+        }
+    } else { //没有按下shift或ctrl
+        let maps = keyboard_shortcuts["None"];
+        if (maps.hasOwnProperty(e.key)) {
+            let action = maps[e.key];
+            return shortcut_actions(action);
         }
     }
 
     // 什么都没有就按原来方法处理事件
     return false;
 }
-document.addEventListener("keydown", on_key_down);
+function shortcut_actions(action){
+    switch (action) {
+        case "select_all":
+            editor_functions.select_all();
+            break;
+        case "undo":
+            editor_functions.undo();
+            break;
+        case "redo":
+            editor_functions.redo();
+            break;
+        case "copy":
+            editor_functions.copy();
+            break;
+        case "cut":
+            editor_functions.cut();
+            break;
+        case "paste":
+            editor_functions.paste();
+           break;
+        case "add_node":
+            graph_functions.add_node(graph.getCanvasCenter().x,graph.getCanvasCenter.y);
+            break;
+        case "delete_selected":
+            graph_functions.delete_selected();
+            break;
+        case "save":
+            pywebview.api.save_file();
+            break;
+        case "save_as":
+            pywebview.api.save_file_as();
+        case "open":
+            pywebview.api.open_file();
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+document.getElementById("ID-graph-container").addEventListener("keydown", on_key_down);
 
 // main
 console.log("rendering graph");

@@ -21,7 +21,7 @@ todo list
 7. combo相关功能，右键菜单 ok
 8. i18n 建议直接l10n变成英文 ok
 9. 窗口大小和html大小匹配（尤其是最大化和恢复的时候），还有那令人迷惑的坐标系统
-10. 撤回功能(要纯自己实现) 但注意现在是深拷贝
+10. 撤回功能(要纯自己实现) 但注意现在是深拷贝，考虑用一个叫 [jsondiffpatch](https://github.com/benjamine/jsondiffpatch)的库
 11. 设置 丐版的做好了，之后加gui "ok"
 12. 用户善良的功能，快捷键，工具栏 on process
 13. 优化 现在函数整理的差不多了 ok
