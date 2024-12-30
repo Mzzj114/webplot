@@ -159,11 +159,11 @@ def on_resized(width, height):
         )
     )
     # 调整html文档大小
-    main_window.evaluate_js(f"document.body.width = {width}; document.body.height = {height};")
+    # main_window.evaluate_js(f"document.body.width = {width}; document.body.height = {height};")
 
 
 # 这个窗口大小和html大小是个很神奇的问题，之后去查查
-# main_window.events.resized += on_resized
+main_window.events.resized += on_resized
 
 # 启动应用程序窗口
 webview.start(main_window_logic, main_window, debug=True, icon="./favicon.ico")

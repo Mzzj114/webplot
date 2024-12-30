@@ -191,10 +191,12 @@ const graph = new Graph({
 });
 
 // G6的事件没有位置信息，只能自己写了
-let context_menu_position = [0, 0];
+let mouse_position = [0, 0];
 let graph_div = document.getElementById("ID-graph-container");
-graph_div.addEventListener('contextmenu', function (event) {
-    context_menu_position = [event.clientX, event.clientY];
+graph_div.addEventListener('mousemove', function (event) {
+    mouse_position = graph.getCanvasByClient([event.clientX, event.clientY]);
+    //console.log("event client position", [event.clientX, event.clientY]);
+    //console.log("canvas position by client", mouse_position); //这个就是可以用的画布坐标了，怎么缩放，改窗口都不会变
 })
 
 /* 考虑快捷键设计好之后给鼠标对graph的操作加上历史记录
@@ -727,7 +729,7 @@ class GraphFunctions {
         };
     })();
 
-    add_node(x, y) {
+    add_node([x, y]) {
         console.log("add_node");
 
         if (config["doManualInputId"] === "true") {
@@ -903,7 +905,7 @@ function canvas_dropdown_menu(operation, e) {
     console.log(e);
 
     if (operation === "add_node") {
-        graph_functions.add_node(graph.getCanvasCenter().x,graph.getCanvasCenter.y);
+        graph_functions.add_node(mouse_position);
     } else if (operation === "auto_layout") {
         //editor_functions.save_graph_state_history();
         graph.setLayout({type: 'dendrogram', direction: "TB", nodeStep: 40});
@@ -967,7 +969,7 @@ function shortcut_actions(action){
             editor_functions.paste();
            break;
         case "add_node":
-            graph_functions.add_node(graph.getCanvasCenter().x,graph.getCanvasCenter.y);
+            graph_functions.add_node(mouse_position);
             break;
         case "delete_selected":
             graph_functions.delete_selected();

@@ -5,13 +5,15 @@
     <meta charset="UTF-8"/>
     <title>webplot</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
     <!--css库-->
     <link rel="stylesheet" href="./../css/layui.css">
     <link rel="stylesheet" href="./../css/simplemde.min.css">
     <link rel="stylesheet" href="./../css/index.css">
 </head>
 
-<body>
+<body style="overflow: hidden;">
 <div id="ID-container" style="position: relative; height: 100vh; display: grid; grid-template-rows: auto auto 1fr;">
     <!--导航栏-->
     <div id="ID-navbar">
@@ -68,7 +70,7 @@
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.print();">
                 <i class="layui-icon layui-icon-export"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.add_node(graph.getCanvasCenter().x,graph.getCanvasCenter.y);">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.add_node(mouse_position);">
                 <i class="layui-icon layui-icon-add-circle"></i>
             </button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.combo_selected();">
@@ -85,7 +87,7 @@
                     <i class="layui-icon layui-icon-set"></i>
                 </button>
             </div>
-            <div style="float: right; margin-right: 15%">
+            <div style="float: right; margin-right: 100px">
                 <div class="layui-btn-group">
                     <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph.zoomBy(0.5);">
                         <i class="layui-icon layui-icon-subtraction"></i>
@@ -102,7 +104,7 @@
     </div>
 
     <!--画布-->
-    <div id="ID-graph-container"></div>
+    <div id="ID-graph-container" style="overflow: auto;"></div> <!--此处样式避免了画布撑大屏幕-->
 
 </div>
 <!--JS库-->
