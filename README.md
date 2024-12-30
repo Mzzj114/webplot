@@ -1,5 +1,8 @@
 # Webplot
 
+ ![logo](https://github.com/user-attachments/assets/737f3057-8f90-4d4b-ac88-dfa4f60d548f)
+
+
 A tool for organizing ideas, featuring nodes that support rich text. This project aims to create an intuitive and visually appealing editor for network graphs.
 This project is a work in progress and serves as a personal tool for idea organization. Its features aim to make graph-based thinking and planning more intuitive and visually engaging.
 It is much simpler and easy to use compare to other products in making mind maps or other network diagrams.
