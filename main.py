@@ -1,6 +1,6 @@
 import http.server
 import socketserver
-import cryptography
+# import cryptography
 import threading
 
 from tkinter import filedialog
@@ -8,6 +8,8 @@ import os
 import json
 
 import webview
+
+DEBUG = True
 
 
 def read_file(file_path):
@@ -166,7 +168,7 @@ def on_resized(width, height):
 main_window.events.resized += on_resized
 
 # 启动应用程序窗口
-webview.start(main_window_logic, main_window, debug=True, icon="./favicon.ico")
+webview.start(main_window_logic, main_window, debug=DEBUG, icon="./favicon.ico")
 
 # anything below this line will be executed after program is finished executing
 print("quiting")

@@ -161,25 +161,34 @@ const graph = new Graph({
                 }
                 if (graph.getElementDataByState('node', 'selected').length > 0) {
                     items.push({name: 'Remove selection', value: "delete_selected"});
+                    items.push({name: 'Copy', value: "copy"});
+                    items.push({name: 'Cut', value: "cut"})
                 }
                 if (graph.getElementDataByState('edge', 'selected').length > 0) {
                     items.push({name: 'Remove all edges', value: "delete_selected_edges"});
+                    items.push({name: 'Copy', value: "copy"});
+                    items.push({name: 'Cut', value: "cut"})
+                }
+                if (!editor_functions.clipboard_empty()){
+                    items.push({name: 'Paste', value: "paste"});
                 }
 
-                items.sort((a, b) => {
-                    // 提取每个对象的 name 属性的首字母
-                    const nameA = a.name.charAt(0).toLowerCase();
-                    const nameB = b.name.charAt(0).toLowerCase();
+                if (config["sortDropdownMenuItems"]) {
+                    items.sort((a, b) => {
+                        // 提取每个对象的 name 属性的首字母
+                        const nameA = a.name.charAt(0).toLowerCase();
+                        const nameB = b.name.charAt(0).toLowerCase();
 
-                    // 进行比较并返回结果
-                    if (nameA < nameB) {
-                        return -1;
-                    } else if (nameA > nameB) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
+                        // 进行比较并返回结果
+                        if (nameA < nameB) {
+                            return -1;
+                        } else if (nameA > nameB) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
+                }
 
                 return items;
             },
@@ -301,6 +310,10 @@ class EditorFunctions {
             layer.msg('No more history');
             console.log("No more states to redo.");
         }
+    }
+
+    clipboard_empty() {
+        return this.#clipboard == null;
     }
 
     #generate_copy_id = (function () {
@@ -617,6 +630,29 @@ class AppFunctions {
             }
         })
     }
+
+    //想做个引导教程的
+    get_started() {
+        console.log("begin_instruction");
+        layer.open({
+            title: 'Get started',
+            content: `
+                <div>
+                    <strong>Welcome to Webplot</strong>
+                    <p>This is a simple guide to walk you through the basic usage of Webplot.</p>
+                    <p>This guide won't show again, but you can always find it in the help menu.</p>
+                </div>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-primary" onclick="app_functions.#begin_instruction()">Next</button>
+                    <button class="layui-btn layui-btn-primary" onclick="layer.closeLast()">Close</button>
+                </div>
+            `
+        })
+    }
+
+    #begin_instruction() {
+
+    }
 } // AppFunctions
 let app_functions = new AppFunctions();
 
@@ -848,7 +884,14 @@ function general_dropdown_menu(operation) {
         graph_functions.delete_selected();
     } else if (operation === "delete_selected_edges") {
         graph_functions.delete_selected_edges();
-    } else {
+    } else if (operation === "copy") {
+        editor_functions.copy();
+    } else if (operation === "cut") {
+        editor_functions.cut();
+    } else if (operation === "paste"){
+        editor_functions.paste();
+    }
+    else {
         return false;
     }
     return true;
