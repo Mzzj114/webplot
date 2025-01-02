@@ -1,6 +1,5 @@
 import http.server
 import socketserver
-# import cryptography
 import threading
 
 from tkinter import filedialog

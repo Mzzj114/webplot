@@ -1,0 +1,1 @@
+pyinstaller.exe --onefile --windowed --icon="./asset/img/webplot.ico" -p .\venv\Lib\site-packages main.py 

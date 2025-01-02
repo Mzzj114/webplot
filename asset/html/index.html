@@ -58,44 +58,66 @@
     <!--工具栏-->
     <div id="ID-toolbar">
         <div class="layui-btn-container" style="margin: 5px 10px;">
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="editor_functions.undo();">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                    lay-on="undo-tooltip"
+                    onclick="editor_functions.undo();">
                 <i class="layui-icon layui-icon-left"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="editor_functions.redo();">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                    lay-on="redo-tooltip"
+                    onclick="editor_functions.redo();">
                 <i class="layui-icon layui-icon-right"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.print();">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                    lay-on="print-tooltip"
+                    onclick="window.print();">
                 <i class="layui-icon layui-icon-print"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.print();">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                    lay-on="export-tooltip"
+                    onclick="window.print();">
                 <i class="layui-icon layui-icon-export"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.add_node(mouse_position);">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                    lay-on="add-node-tooltip"
+                    onclick="graph_functions.add_node(mouse_position);">
                 <i class="layui-icon layui-icon-add-circle"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.combo_selected();">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                    lay-on="combo-selection-tooltip"
+                    onclick="graph_functions.combo_selected();">
                 <i class="layui-icon layui-icon-layer"></i>
             </button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph_functions.delete_selected()">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                    lay-on="delete-selection-tooltip"
+                    onclick="graph_functions.delete_selected()">
                 <i class="layui-icon layui-icon-delete"></i>
             </button>
             <div style="float: right">
-                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="window.open('https://github.com/Mzzj114/webplot', '_blank')">
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                        onclick="window.open('https://github.com/Mzzj114/webplot', '_blank')">
                     <i class="layui-icon layui-icon-github"></i>
                 </button>
-                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="app_functions.open_settings();">
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                        onclick="app_functions.open_settings();">
                     <i class="layui-icon layui-icon-set"></i>
                 </button>
             </div>
             <div style="float: right; margin-right: 100px">
                 <div class="layui-btn-group">
-                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph.zoomBy(0.5);">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                            lay-on="zoom-in-toolip"
+                            onclick="graph.zoomBy(0.5);">
                         <i class="layui-icon layui-icon-subtraction"></i>
                     </button>
-                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph.zoomBy(2);">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                            lay-on="zoom-out-toolip"
+                            onclick="graph.zoomBy(2);">
                         <i class="layui-icon layui-icon-addition"></i>
                     </button>
-                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" onclick="graph.fitCenter().then(()=>{graph.zoomTo(1);});">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary"
+                            lay-on="reset-camera-tooltip"
+                            onclick="graph.fitCenter().then(()=>{graph.zoomTo(1);});">
                         <i class="layui-icon layui-icon-circle-dot"></i>
                     </button>
                 </div>

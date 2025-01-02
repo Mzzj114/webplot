@@ -454,22 +454,66 @@ class AppFunctions {
 
         // 构造弹窗
         let edit_node_layer_content = `
-            <div class="layui-input-group">
-                <div class="layui-input-prefix">Node id</div>
-                <input id="ID-id-edit" type="text" class="layui-input" value="${node_id}" disabled>
-            </div>      
-    
-            <textarea id="ID-editor">${markdown}</textarea>
-            <button type="button" class="layui-btn" onclick="graph_functions.save_node_content('${node_id}', simplemde.value())">Save</button>
+
+            <div class="layui-row layui-padding-2">
+                <!--内容编辑器-->
+                <div class="layui-col-xs6">
+                    <textarea id="ID-editor" class="layui-margin-3" style="overflow: auto">${markdown}</textarea>  
+                </div>
+                <!--配置项-->
+                <div class="layui-col-xs6">
+                    <div class="layui-padding-2 layui-margin-2">
+                        <div class="layui-input-group">
+                            <div class="layui-input-prefix">Node id</div>
+                            <input id="ID-id-edit" type="text" class="layui-input" value="${node_id}" disabled>
+                        </div>
+                        <br>
+                        <div class="layui-input-group">
+                            <div class="layui-input-prefix">Color</div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline" style="width: 120px;">
+                                  <input type="text" name="color" value="#16baaa" placeholder="Pick a color" class="layui-input" id="ID-colorpicker-color">
+                                </div>
+                                <div class="layui-inline" style="left: -11px;">
+                                  <div id="ID-colorpicker"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="layui-btn-container" style="float: right">      
+                            <button type="button" class="layui-btn" onclick="graph_functions.save_node_content(node_id='${node_id}', md=simplemde.value(), options={color: layui.$('#ID-colorpicker-color').val()});">Save</button>
+                            <button type="button" class="layui-btn layui-btn-primary" onclick="layer.closeLast();">Cancel</button>
+                        </div>
+                    </div>  
+                </div>
+            </div>
+
+            
             <script src="./../js/simplemde.min.js"></script>
             <script>
                 var simplemde = new SimpleMDE({ element: document.getElementById("ID-editor") });
+                layui.use(function(){
+                  var colorpicker = layui.colorpicker;
+                  var $ = layui.$;
+                  // 渲染
+                  colorpicker.render({
+                    elem: '#ID-colorpicker',
+                    color: '#16baaa',
+                    done: function(color){
+                      $('#ID-colorpicker-color').val(color);
+                    },
+                    predefine: true, // 开启预定义颜色
+                    colors: ['#16baaa','#ff5722','#ffb800','#16b777','#31bdec'], //自定义预定义颜色项
+                    size: 'xs',
+                  });
+                  
+                });
             </script>
             `
 
         layer.open({
             type: 1, // page 层类型
-            area: ['800px', '500px'],
+            area: ['800px', '550px'],
             title: 'Edit node',
             shade: 0.6, // 遮罩透明度
             shadeClose: true, // 点击遮罩区域，关闭弹层
@@ -653,6 +697,29 @@ class AppFunctions {
     #begin_instruction() {
 
     }
+
+    // tooltip 的部分
+    use_tooltip(yes = true){
+        layui.use(function (){
+            var layer = layui.layer;
+            var util = layui.util;
+            if (yes){
+                util.on("lay-on",{
+                    'undo-tooltip': function () {layer.tips('Undo', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'redo-tooltip': function () {layer.tips('Redo', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'print-tooltip': function () {layer.tips('Print', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'export-tooltip': function () {layer.tips('Export', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'add-node-tooltip': function () {layer.tips('Add node', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'combo-selection-tooltip': function () {layer.tips('Combo selection', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'delete-selection-tooltip': function () {layer.tips('Delete selection', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'zoom-in-tooltip': function () {layer.tips('Zoom in', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'zoom-out-tooltip': function () {layer.tips('Zoom out', this, {tips: [3, '#16baaa'], time: 1000});},
+                    'reset-camera-tooltip': function () {layer.tips('Reset camera', this, {tips: [3, '#16baaa'], time: 1000});},
+                },{trigger: "mouseenter"});
+            }
+        }); // layui.use 结束
+    }
+
 } // AppFunctions
 let app_functions = new AppFunctions();
 
@@ -791,10 +858,10 @@ class GraphFunctions {
     }
 
     // 主要函数 保存编辑后的内容
-    save_node_content(node_id, md) {
+    save_node_content(node_id, md, options) {
         console.log("graph_functions.save_node_content", node_id);
 
-        let html_content = this.#get_node_html_with_border(render_md_content(md));
+        let html_content = this.#get_node_html_with_border(render_md_content(md), options);
 
         let size = this.#get_container_size(html_content);
         console.log("size", size);
@@ -817,9 +884,9 @@ class GraphFunctions {
     }
 
     // 辅助函数 获得有样式的div
-    #get_node_html_with_border(html) {
+    #get_node_html_with_border(html, options) {
         return `
-        <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px">${html}</div>
+        <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, ${options.color} 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px">${html}</div>
         `
     }
 
@@ -1022,6 +1089,7 @@ function shortcut_actions(action){
             break;
         case "save_as":
             pywebview.api.save_file_as();
+            break;
         case "open":
             pywebview.api.open_file();
             break;
@@ -1031,6 +1099,7 @@ function shortcut_actions(action){
     return true;
 }
 document.getElementById("ID-graph-container").addEventListener("keydown", on_key_down);
+
 
 // main
 console.log("rendering graph");
@@ -1044,9 +1113,12 @@ function on_pywebview_ready() {
     pywebview.api.get_config().then((conf) => {
         console.log("config", conf);
         config = conf;
+
+        app_functions.use_tooltip(config["showToolbarTips"]==="true");
     })
     pywebview.api.get_keyboard_shortcuts().then((shortcuts) => {
         console.log("shortcuts", shortcuts);
         keyboard_shortcuts = shortcuts;
     })
+
 }
