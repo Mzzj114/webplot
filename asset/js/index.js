@@ -11,7 +11,7 @@ const graph_data = {
             y: 200,
             size: [100, 58],
             innerHTML: '<div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, #16baaa 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px"><p>node 1</p></div>',
-        }
+        },
     },
         {
             id: 'n1',
@@ -44,6 +44,12 @@ const graph = new Graph({
             selected: {
                 //size: [205, 60],
                 halo: false, //有显示bug
+                labelText: "√",
+                labelFill: '#fff',
+                labelBackground: true,
+                labelBackgroundFill: '#16b777',
+                labelBackgroundRadius: 4,
+                labelFontSize: 12,
                 badge: true,
                 badges: [
                     {text: "√", placement: "top-right"}
@@ -449,8 +455,11 @@ class AppFunctions {
         let node_data = graph.getNodeData(node_id);
         let markdown = node_data.data.markdown;
         if (markdown === undefined) markdown = "";
+        let options = node_data.data.options;
+        if (options === undefined) options = {color: '#fff', size:{x: -1,y: -1}};
 
         console.log("markdown", markdown);
+        console.log("options", options);
 
         // 构造弹窗
         let edit_node_layer_content = `
@@ -472,16 +481,24 @@ class AppFunctions {
                             <div class="layui-input-prefix">Color</div>
                             <div class="layui-form-item">
                                 <div class="layui-input-inline" style="width: 120px;">
-                                  <input type="text" name="color" value="#16baaa" placeholder="Pick a color" class="layui-input" id="ID-colorpicker-color">
+                                  <input type="text" name="color" value='${options.color}' placeholder="Pick a color" class="layui-input" id="ID-colorpicker-color">
                                 </div>
                                 <div class="layui-inline" style="left: -11px;">
                                   <div id="ID-colorpicker"></div>
                                 </div>
                             </div>
                         </div>
+                        <br>
+                        <div class="layui-input-group">
+                            <div class="layui-input-prefix">Size</div>
+                            <span>x: </span> <input id="ID-size-x" type="number" class="layui-input" value="${options.size.x}">
+                            <span>y: </span> <input id="ID-size-y" type="number" class="layui-input" value="${options.size.y}">
+                        </div>
                         <hr>
                         <div class="layui-btn-container" style="float: right">      
-                            <button type="button" class="layui-btn" onclick="graph_functions.save_node_content(node_id='${node_id}', md=simplemde.value(), options={color: layui.$('#ID-colorpicker-color').val()});">Save</button>
+                            <button type="button" class="layui-btn" 
+                                onclick="graph_functions.save_node_content(node_id='${node_id}', md=simplemde.value(), options={color: layui.$('#ID-colorpicker-color').val(), size: {x: layui.$('#ID-size-x').val(), y: layui.$('#ID-size-y').val()}});">
+                                Save</button>
                             <button type="button" class="layui-btn layui-btn-primary" onclick="layer.closeLast();">Cancel</button>
                         </div>
                     </div>  
@@ -498,7 +515,7 @@ class AppFunctions {
                   // 渲染
                   colorpicker.render({
                     elem: '#ID-colorpicker',
-                    color: '#16baaa',
+                    color: '${options.color}',
                     done: function(color){
                       $('#ID-colorpicker-color').val(color);
                     },
@@ -525,12 +542,83 @@ class AppFunctions {
 
     open_edit_edge_layer(edge_id) {
         console.log("open_edit_edge_layer edge_id", edge_id);
-        layer.prompt({title: 'Enter label',}, function (text, index) {
-            layer.close(index);
-            editor_functions.save_graph_state_history();
-            graph.updateEdgeData([{id: edge_id, style: {labelText: text}}]);
+        // layer.prompt({title: 'Enter label',}, function (text, index) {
+        //     layer.close(index);
+        //     editor_functions.save_graph_state_history();
+        //     graph.updateEdgeData([{id: edge_id, style: {labelText: text}}]);
+        //
+        //     graph.render();
+        // });
+        let edge_data = graph.getEdgeData(edge_id);
+        let label_text = edge_data.style.labelText;
+        if (label_text === undefined) label_text = "";
 
-            graph.render();
+        let edge_type = edge_data.style.curveOffset === 0 ? "line" : "quadratic";
+
+        let layer_content = `
+        <div class="layui-padding-3">
+            <div class="layui-input-group">
+                <div class="layui-input-prefix">Edge id</div>
+                <input id="ID-id-edit" type="text" class="layui-input" value="${edge_id}" disabled>
+            </div>
+            <br>
+            <div class="layui-input-group">
+                <div class="layui-input-prefix">Edge type</div>
+                <input id="ID-edge-type" type="text" class="layui-input" value="${edge_type}">       
+            </div>
+            <br>
+            <div class="layui-input-group">
+                <div class="layui-input-prefix">Label</div>
+                <input id="ID-edge-label" type="text" class="layui-input" value="${label_text}">
+            </div>
+        </div>
+        `
+
+        layer.open({
+            type: 1, // page 层类型
+            area: ['800px', '550px'],
+            title: 'Edit edge',
+            shade: 0.6, // 遮罩透明度
+            shadeClose: true, // 点击遮罩区域，关闭弹层
+            maxmin: true, // 允许全屏最小化
+            anim: 0, // 0-6 的动画形式，-1 不开启
+            content: layer_content,
+            success: function (layero, index) {
+                var $ = layui.$;
+                layui.use(function (){
+                    var dropdown = layui.dropdown;
+                    dropdown.render({
+                        elem: '#ID-edge-type',
+                        data: [{
+                            title: 'Line',
+                            id: 'line'
+                        }, {
+                            title: 'Quadratic',
+                            id: 'quadratic'
+                        }],
+                        click: function (data) {
+                            $("#ID-edge-type").val(data.id);
+                        }
+                    });
+                });
+            },
+            btn: ["Save", "Cancel"],
+            btn1: function (index, layero) {
+                var $ = layui.$;
+                editor_functions.save_graph_state_history();
+                graph.updateEdgeData([{
+                    id: edge_id,
+                    style: {
+                        labelText: $("#ID-edge-label").val(),
+                        curveOffset: $("#ID-edge-type").val() === "quadratic" ? 30 : 0
+                    }
+                }]);
+                graph.render();
+                layer.close(index);
+            },
+            btn2: function (index, layero) {
+                layer.close(index);
+            },
         });
     }
 
@@ -858,12 +946,17 @@ class GraphFunctions {
     }
 
     // 主要函数 保存编辑后的内容
-    save_node_content(node_id, md, options) {
+    save_node_content(node_id, md, options={color: '#fff',size: {x: -1, y: -1}}) {
         console.log("graph_functions.save_node_content", node_id);
 
         let html_content = this.#get_node_html_with_border(render_md_content(md), options);
 
-        let size = this.#get_container_size(html_content);
+        let size;
+        if (options.size.x == -1 && options.size.y == -1)
+            size = this.#get_container_size(html_content);
+        else{
+            size = [options.size.x, options.size.y];
+        }
         console.log("size", size);
 
         editor_functions.save_graph_state_history();
@@ -876,6 +969,7 @@ class GraphFunctions {
             },
             data: {
                 markdown: md,
+                options: options,
             }
         }]);
 
@@ -885,8 +979,12 @@ class GraphFunctions {
 
     // 辅助函数 获得有样式的div
     #get_node_html_with_border(html, options) {
+        let style = `position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, ${options.color} 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px;`
+        if (options.size.x != -1 || options.size.y != -1){
+            style += `width: ${options.size.x}px; height: ${options.size.y}px`;
+        }
         return `
-        <div style="position: relative; border-width: 1px; border-style: solid; border-radius: 2px; box-shadow: 1px 1px 4px rgb(0 0 0 / 8%); background-image: linear-gradient(to bottom, ${options.color} 5px, #fff 5px); color: #5F5F5F; border-color: #eee; padding: 25px">${html}</div>
+        <div style="${style}">${html}</div>
         `
     }
 
