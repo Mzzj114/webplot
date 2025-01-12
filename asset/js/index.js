@@ -1,7 +1,5 @@
 const {Graph} = G6;
 
-//import { jsPDF } from "jspdf";
-
 // 数据默认值
 const graph_data = {
     nodes: [{
@@ -269,11 +267,18 @@ class EditorFunctions {
 
     #clipboard;
 
+    #diffpatcher;
+    #init_graph_data; //别改
+
     constructor() {
         // 撤销重做功能
         // 用于记录状态的栈
         this.#history_stack = []; //undo stack
         this.#redo_stack = [];
+
+        this.#diffpatcher = jsondiffpatch.create();
+        this.#init_graph_data = graph.getData();
+
     }
 
     #deepClone(obj) {
@@ -281,39 +286,89 @@ class EditorFunctions {
     }
 
     // 请每次操作时都执行这个来使更改加入历史记录
-    save_graph_state_history() {
-        this.#history_stack.push(this.#deepClone(graph.getData())); // 保存当前的深拷贝
-        console.log("history saved", this.#history_stack);
+    // save_graph_state_history_with_deep_clone() {
+    //     this.#history_stack.push(this.#deepClone(graph.getData())); // 保存当前的深拷贝
+    //     console.log("history saved", this.#history_stack);
+    // }
+
+    save_graph_state_history(){
+        now_graph_data = graph.getData();
+        let delta = this.#diffpatcher.diff(this.#init_graph_data, now_graph_data);
+        if (delta) {
+            this.#history_stack.push(delta);
+            console.log("history saved", this.#history_stack);
+        }
     }
 
-    // 撤销到上一个状态
+    // 深度拷贝撤销到上一个状态
+    // undo() {
+    //     if (this.#history_stack.length > 0) {
+    //         this.#redo_stack.push(this.#deepClone(graph.getData()));
+    //         graph.setData(this.#history_stack.pop()); // 恢复到上一个状态
+    //         graph.render();
+
+    //         console.log("Undo performed.");
+    //         console.log("history stack:", this.#history_stack);
+    //         console.log("redo stack:", this.#redo_stack);
+    //     } else {
+    //         layer.msg('No more history');
+    //         console.log("No more states to undo.");
+    //     }
+    // }
+
     undo() {
         if (this.#history_stack.length > 0) {
-            this.#redo_stack.push(this.#deepClone(graph.getData()));
-            graph.setData(this.#history_stack.pop()); // 恢复到上一个状态
+
+            let delta = this.#history_stack.pop();
+
+            this.#redo_stack.push(delta);
+
+            let now_graph_data = graph.getData();
+            this.#diffpatcher.unpatch(now_graph_data, delta);
+            
+            graph.setData(now_graph_data);
             graph.render();
 
             console.log("Undo performed.");
-            console.log("history stack:", this.#history_stack);
-            console.log("redo stack:", this.#redo_stack);
         } else {
             layer.msg('No more history');
             console.log("No more states to undo.");
         }
     }
 
-    // 重做
+    // 深度拷贝重做
+    // redo() {
+    //     if (this.#redo_stack.length > 0) {
+    //         this.#history_stack.push(this.#deepClone(graph.getData())); // 当前状态存回撤销栈
+    //         graph.setData(this.#redo_stack.pop());
+    //         graph.render();
+
+    //         console.log("Redo performed.");
+    //         console.log("history stack:", this.#history_stack);
+    //         console.log("redo stack:", this.#redo_stack);
+    //     } else {
+    //         layer.msg('No more history');
+    //         console.log("No more states to redo.");
+    //     }
+    // }
+
     redo() {
         if (this.#redo_stack.length > 0) {
-            this.#history_stack.push(this.#deepClone(graph.getData())); // 当前状态存回撤销栈
-            graph.setData(this.#redo_stack.pop());
+
+            let delta = this.#redo_stack.pop();
+
+            this.#history_stack.push(delta);
+
+            let now_graph_data = graph.getData();
+
+            this.#diffpatcher.patch(now_graph_data, delta);
+            
+            graph.setData(now_graph_data);
             graph.render();
 
             console.log("Redo performed.");
-            console.log("history stack:", this.#history_stack);
-            console.log("redo stack:", this.#redo_stack);
         } else {
-            layer.msg('No more history');
+            layer.msg('No more redo history');
             console.log("No more states to redo.");
         }
     }
@@ -1208,6 +1263,7 @@ let keyboard_shortcuts = {};
 // 有点逆天，但是pywebview的接口要等一会才会加载出来
 // 被python调用
 function on_pywebview_ready() {
+    
     pywebview.api.get_config().then((conf) => {
         console.log("config", conf);
         config = conf;
@@ -1220,3 +1276,15 @@ function on_pywebview_ready() {
     })
 
 }
+
+// document.addEventListener("DOMContentLoaded", function () {
+//     pywebview.api.get_config().then((conf) => {
+//         console.log("config", conf);
+//         config = conf;
+
+//         app_functions.use_tooltip(config["showToolbarTips"]==="true");
+//     })
+//     pywebview.api.get_keyboard_shortcuts().then((shortcuts) => {
+//         console.log("shortcuts", shortcuts);
+//     })
+// })
