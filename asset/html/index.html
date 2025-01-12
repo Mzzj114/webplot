@@ -134,7 +134,11 @@
 <script src="./../js/layui.js"></script>
 <script src="./../js/marked.min.js"></script>
 <!--<script src="https://unpkg.com/turndown/dist/turndown.js"></script>-->
-<script type="module" src="https://esm.sh/jsondiffpatch"></script>
+<script type="module">
+    import * as jsondiffpatch from 'https://esm.sh/jsondiffpatch@0.6.0';
+    window.jsondiffpatch = jsondiffpatch; // 挂载到全局对象
+    console.log(jsondiffpatch);
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
 
 <!--脚本-->

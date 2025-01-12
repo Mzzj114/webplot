@@ -267,8 +267,9 @@ class EditorFunctions {
 
     #clipboard;
 
-    #diffpatcher;
-    #init_graph_data; //别改
+    diffpatcher;
+    #step_graph_data;   //出于某种很复杂的原因，我需要这个变量来存点东西
+    //#init_graph_data; //别改
 
     constructor() {
         // 撤销重做功能
@@ -276,8 +277,9 @@ class EditorFunctions {
         this.#history_stack = []; //undo stack
         this.#redo_stack = [];
 
-        this.#diffpatcher = jsondiffpatch.create();
-        this.#init_graph_data = graph.getData();
+        //this.diffpatcher = window.jsondiffpatch.create(); // 此处程序还没加载好
+        //this.#init_graph_data = graph.getData();
+        this.#step_graph_data = graph.getData();
 
     }
 
@@ -292,11 +294,23 @@ class EditorFunctions {
     // }
 
     save_graph_state_history(){
-        now_graph_data = graph.getData();
-        let delta = this.#diffpatcher.diff(this.#init_graph_data, now_graph_data);
+        //每次执行操作之后都应该保存一次历史记录
+        //这样now_graph_data就是最新的记录，我们可以访问历史记录，获得两者的delta
+        let now_graph_data = graph.getData();
+
+        // 太费资源了
+        // let last_graph_data = this.#deepClone(this.#init_graph_data);
+        // this.#history_stack.forEach(delta => {
+        //     this.diffpatcher.patch(last_graph_data, delta);
+        // });
+
+        let delta = this.diffpatcher.diff(this.#step_graph_data, now_graph_data);
         if (delta) {
             this.#history_stack.push(delta);
+            this.#step_graph_data = now_graph_data;
             console.log("history saved", this.#history_stack);
+        } else {
+            console.log("No changes detected.");
         }
     }
 
@@ -323,10 +337,9 @@ class EditorFunctions {
 
             this.#redo_stack.push(delta);
 
-            let now_graph_data = graph.getData();
-            this.#diffpatcher.unpatch(now_graph_data, delta);
+            this.diffpatcher.unpatch(this.#step_graph_data, delta);
             
-            graph.setData(now_graph_data);
+            graph.setData(this.#step_graph_data);
             graph.render();
 
             console.log("Undo performed.");
@@ -359,11 +372,9 @@ class EditorFunctions {
 
             this.#history_stack.push(delta);
 
-            let now_graph_data = graph.getData();
-
-            this.#diffpatcher.patch(now_graph_data, delta);
+            this.diffpatcher.patch(this.#step_graph_data, delta);
             
-            graph.setData(now_graph_data);
+            graph.setData(this.#step_graph_data);
             graph.render();
 
             console.log("Redo performed.");
@@ -454,9 +465,10 @@ class EditorFunctions {
 
         console.log("adding data");
         console.log("clipboard", this.#clipboard);
-        this.save_graph_state_history();
+
         graph.addData(this.#clipboard);
         graph.render();
+        this.save_graph_state_history();
     }
 
     // 打印/导出
@@ -660,7 +672,7 @@ class AppFunctions {
             btn: ["Save", "Cancel"],
             btn1: function (index, layero) {
                 var $ = layui.$;
-                editor_functions.save_graph_state_history();
+
                 graph.updateEdgeData([{
                     id: edge_id,
                     style: {
@@ -669,6 +681,7 @@ class AppFunctions {
                     }
                 }]);
                 graph.render();
+                this.save_graph_state_history();
                 layer.close(index);
             },
             btn2: function (index, layero) {
@@ -681,10 +694,9 @@ class AppFunctions {
         console.log("open_edit_combo_layer combo_id", combo_id);
         layer.prompt({title: 'Enter label',}, function (text, index) {
             layer.close(index);
-            editor_functions.save_graph_state_history();
             graph.updateComboData([{id: combo_id, style: {labelText: text}}]);
-
             graph.render();
+            editor_functions.save_graph_state_history();
         });
     }
 
@@ -694,7 +706,6 @@ class AppFunctions {
         // 现在combo会把首次输入的标签作为id之后可以改
         layer.prompt({title: 'Enter Combo Name'}, function (text, index) {
             layer.close(index);
-            editor_functions.save_graph_state_history();
             let combo_id = text;
             graph.addComboData([{id: combo_id, type: 'rect', style: {labelText: combo_id}}]);
             console.log("combo_id", combo_id);
@@ -703,6 +714,7 @@ class AppFunctions {
                 graph.updateNodeData([{id: node_id, combo: combo_id}]);
             });
             graph.render();
+            editor_functions.save_graph_state_history();
         });
     }
 
@@ -918,8 +930,6 @@ class GraphFunctions {
         let selected_combos = graph.getElementDataByState('combo', 'selected');
         let selected_combo_ids = [];
 
-        editor_functions.save_graph_state_history();
-
         selected_nodes.forEach((item) => {
             selected_node_ids.push(item.id);
         });
@@ -931,6 +941,7 @@ class GraphFunctions {
         graph.removeComboData(selected_combo_ids);
 
         graph.render();
+        editor_functions.save_graph_state_history();
     }
 
     delete_selected_edges() {
@@ -940,22 +951,22 @@ class GraphFunctions {
         selected_edges.forEach((item) => {
             selected_edge_ids.push(item.id);
         });
-        editor_functions.save_graph_state_history();
         graph.removeEdgeData(selected_edge_ids);
 
         graph.render();
+        editor_functions.save_graph_state_history();
     }
 
     delete_node(node_id) {
-        editor_functions.save_graph_state_history();
         graph.removeNodeData([node_id]);
         graph.render();
+        editor_functions.save_graph_state_history();
     }
 
     delete_edge(edge_id) {
-        editor_functions.save_graph_state_history();
         graph.removeEdgeData([edge_id]);
         graph.render();
+        editor_functions.save_graph_state_history();
     }
 
     combo_selected() {
@@ -990,13 +1001,13 @@ class GraphFunctions {
             });
         } else {
             let node_id = this.#generate_node_id();
-            editor_functions.save_graph_state_history();
+
             graph.addNodeData([{
                 id: node_id,
                 style: {x: x, y: y, innerHTML: ""}
             }]);
             graph_functions.save_node_content(node_id, "");
-
+            editor_functions.save_graph_state_history();
         }
     }
 
@@ -1014,8 +1025,6 @@ class GraphFunctions {
         }
         console.log("size", size);
 
-        editor_functions.save_graph_state_history();
-
         graph.updateNodeData([{
             id: node_id,
             style: {
@@ -1029,6 +1038,7 @@ class GraphFunctions {
         }]);
 
         graph.render();
+        editor_functions.save_graph_state_history();
         layer.closeLast();
     }
 
@@ -1135,9 +1145,9 @@ function node_dropdown_menu(operation, e) {
             layer.msg("Please select two nodes");
             return;
         }
-        editor_functions.save_graph_state_history();
         graph.addEdgeData([{source: selected_nodes[0].id, target: selected_nodes[1].id}]);
         graph.render();
+        editor_functions.save_graph_state_history();
     }
 
 }
@@ -1154,9 +1164,9 @@ function edge_dropdown_menu(operation, e) {
 function combo_dropdown_menu(operation, e) {
     console.log("combo_dropdown_menu", operation);
     if (operation === "delete") {
-        editor_functions.save_graph_state_history();
         graph.removeComboData([e.id]);
         graph.render();
+        editor_functions.save_graph_state_history();
     } else if (operation === "edit") {
         app_functions.open_edit_combo_layer(e.id);
     }
@@ -1275,6 +1285,7 @@ function on_pywebview_ready() {
         keyboard_shortcuts = shortcuts;
     })
 
+    editor_functions.diffpatcher = window.jsondiffpatch.create();
 }
 
 // document.addEventListener("DOMContentLoaded", function () {
