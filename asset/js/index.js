@@ -349,7 +349,7 @@ class EditorFunctions {
         }
     }
 
-    // 深度拷贝重做
+    // 深度拷贝的重做功能
     // redo() {
     //     if (this.#redo_stack.length > 0) {
     //         this.#history_stack.push(this.#deepClone(graph.getData())); // 当前状态存回撤销栈
@@ -382,6 +382,13 @@ class EditorFunctions {
             layer.msg('No more redo history');
             console.log("No more states to redo.");
         }
+    }
+
+    clear_history() {
+        this.#history_stack = [];
+        this.#redo_stack = [];
+        this.#step_graph_data = graph.getData();
+        console.log("history cleared");
     }
 
     clipboard_empty() {
@@ -482,6 +489,7 @@ class EditorFunctions {
         // graph the json content
         console.log("editor_functions.set_file_content");
         graph.setData(content);
+        this.clear_history();
         graph.render();
     }
 
@@ -681,7 +689,7 @@ class AppFunctions {
                     }
                 }]);
                 graph.render();
-                this.save_graph_state_history();
+                editor_functions.save_graph_state_history();
                 layer.close(index);
             },
             btn2: function (index, layero) {
@@ -1285,7 +1293,11 @@ function on_pywebview_ready() {
         keyboard_shortcuts = shortcuts;
     })
 
-    editor_functions.diffpatcher = window.jsondiffpatch.create();
+    editor_functions.diffpatcher = window.jsondiffpatch.create({
+        textDiff: {
+            minLength: 600, // default value
+        },
+    });
 }
 
 // document.addEventListener("DOMContentLoaded", function () {
